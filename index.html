@@ -6,7 +6,7 @@
     <title>Kitten RPS Game</title>
     <style>
         body {
-            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6); /* 漸層背景 */
+            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6); /* 背景漸層 */
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -26,19 +26,20 @@
         }
 
         .start-button {
-            background-color: #d8bfa7; /* 柔和杏色按鈕 */
-            color: #5c3a21; /* 深褐色文字 */
+            background: linear-gradient(to right, #0d3b8b, #1e4ca6); /* 深藍色漸層 */
+            color: #ffffff; /* 白色文字 */
+            font-weight: bold; /* 粗體 */
             border: none;
-            padding: 4vh 8vw;
-            font-size: 5vw;
+            padding: 5vh 10vw; /* 調整字體與按鈕大小 */
+            font-size: 6vw; /* 字體更大 */
             border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background 0.3s, transform 0.2s;
         }
 
         .start-button:hover {
-            background-color: #c7a88e; /* 懸停變色 */
-            transform: scale(1.05); /* 懸停微微放大效果 */
+            background: linear-gradient(to right, #1e4ca6, #0d3b8b); /* 懸停漸層反轉 */
+            transform: scale(1.05); /* 微微放大 */
         }
     </style>
 </head>
