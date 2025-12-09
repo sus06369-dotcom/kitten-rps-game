@@ -1,1 +1,49 @@
 
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手機響應式 -->
+    <title>Kitten RPS Game</title>
+    <style>
+        body {
+            background-color: #f5f0e1;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin: 0;
+            padding: 0 10px; /* 手機左右留白 */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #4b0082;
+            font-size: 8vw; /* 使用 vw 單位讓字在手機上自動縮放 */
+            margin-bottom: 6vh;
+            text-align: center;
+        }
+
+        .start-button {
+            background-color: #4b0082;
+            color: #fff;
+            border: none;
+            padding: 4vh 8vw; /* 使用相對單位讓按鈕在手機上變大 */
+            font-size: 5vw;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #6a0dad;
+        }
+    </style>
+</head>
+<body>
+    <h1>kitten rps game</h1>
+    <button class="start-button">start</button>
+</body>
+</html>
