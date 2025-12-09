@@ -1,13 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手機響應式 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kitten RPS Game</title>
     <style>
         body {
-            background-color: #f5f0e1;
+            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6); /* 漸層背景 */
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -15,30 +14,31 @@
             height: 100vh;
             flex-direction: column;
             margin: 0;
-            padding: 0 10px; /* 手機左右留白 */
+            padding: 0 10px;
             box-sizing: border-box;
         }
 
         h1 {
-            color: #4b0082;
-            font-size: 8vw; /* 使用 vw 單位讓字在手機上自動縮放 */
+            color: #4b0082; /* 深紫色標題文字 */
+            font-size: 8vw;
             margin-bottom: 6vh;
             text-align: center;
         }
 
         .start-button {
-            background-color: #4b0082;
-            color: #fff;
+            background-color: #d8bfa7; /* 柔和杏色按鈕 */
+            color: #5c3a21; /* 深褐色文字 */
             border: none;
-            padding: 4vh 8vw; /* 使用相對單位讓按鈕在手機上變大 */
+            padding: 4vh 8vw;
             font-size: 5vw;
             border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         .start-button:hover {
-            background-color: #6a0dad;
+            background-color: #c7a88e; /* 懸停變色 */
+            transform: scale(1.05); /* 懸停微微放大效果 */
         }
     </style>
 </head>
