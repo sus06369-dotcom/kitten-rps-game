@@ -6,7 +6,7 @@
     <title>Kitten RPS Game</title>
     <style>
         body {
-            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6); /* 背景漸層 */
+            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6);
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -18,32 +18,150 @@
             box-sizing: border-box;
         }
 
+        /* 首頁 */
         .title-image {
-            max-width: 80%;  /* 圖片最大寬度占螢幕80% */
+            max-width: 80%;
             height: auto;
-            margin-bottom: 6vh; /* 與按鈕距離 */
+            margin-bottom: 6vh;
         }
 
         .start-button {
-            background: linear-gradient(to right, #0d3b8b, #1e4ca6); /* 深藍色漸層 */
-            color: #ffffff; /* 白色文字 */
-            font-weight: bold; /* 粗體 */
+            background: linear-gradient(to right, #0d3b8b, #1e4ca6);
+            color: #ffffff;
+            font-weight: bold;
             border: none;
-            padding: 15px 40px; /* 按鈕大小固定 */
-            font-size: 28px; /* 文字放大 */
+            padding: 15px 40px;
+            font-size: 28px;
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
         }
 
         .start-button:hover {
-            background: linear-gradient(to right, #1e4ca6, #0d3b8b); /* 懸停漸層反轉 */
+            background: linear-gradient(to right, #1e4ca6, #0d3b8b);
             transform: scale(1.05);
+        }
+
+        /* 遊戲畫面 */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #game-text {
+            color: #4b0082;
+            font-size: 5vw;
+            margin-bottom: 2vh;
+            text-align: center;
+        }
+
+        #kitten-container {
+            position: relative;
+            margin-bottom: 3vh;
+        }
+
+        #kitten-img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        #computer-choice {
+            position: absolute;
+            left: -10px; /* 微調靠近左下角 */
+            bottom: -10px;
+            max-width: 50px;
+            height: auto;
+        }
+
+        .player-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .player-buttons img {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4b0082;
         }
     </style>
 </head>
 <body>
-    <img src="kitten rps game.png" alt="Kitten RPS Game" class="title-image">
-    <button class="start-button">start</button>
+
+    <!-- 首頁 -->
+    <div id="start-screen">
+        <img src="kitten rps game.png" alt="Kitten RPS Game" class="title-image">
+        <button class="start-button">start</button>
+    </div>
+
+    <!-- 遊戲畫面 -->
+    <div id="game-screen">
+        <div id="game-text">可以和小貓猜拳嗎？</div>
+        <div id="kitten-container">
+            <img src="kitten.png" alt="kitten" id="kitten-img">
+            <img src="" alt="computer choice" id="computer-choice">
+        </div>
+        <div class="player-buttons">
+            <img src="r.png" alt="剪刀" data-choice="r">
+            <img src="g.png" alt="石頭" data-choice="g">
+            <img src="b.png" alt="布" data-choice="b">
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const startBtn = document.querySelector(".start-button");
+        const startScreen = document.getElementById("start-screen");
+        const gameScreen = document.getElementById("game-screen");
+
+        const playerButtons = document.querySelectorAll(".player-buttons img");
+        const computerChoiceImg = document.getElementById("computer-choice");
+        const resultDiv = document.getElementById("result");
+
+        const computerOptions = ['scissors2.png', 'rock2.png', 'paper2.png'];
+
+        // 點擊 start → 顯示遊戲畫面
+        startBtn.addEventListener("click", () => {
+            startScreen.style.display = "none";
+            gameScreen.style.display = "flex";
+        });
+
+        // 玩家選擇
+        playerButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const playerChoice = btn.getAttribute("data-choice");
+
+                // 電腦隨機出拳
+                const computerChoiceFile = computerOptions[Math.floor(Math.random() * 3)];
+                computerChoiceImg.src = computerChoiceFile;
+
+                // 判定勝負
+                let result = '';
+                if (playerChoice === 'r') {
+                    if (computerChoiceFile === 'scissors2.png') result = '平手';
+                    else if (computerChoiceFile === 'rock2.png') result = '玩家輸';
+                    else if (computerChoiceFile === 'paper2.png') result = '玩家贏';
+                } else if (playerChoice === 'g') {
+                    if (computerChoiceFile === 'scissors2.png') result = '玩家贏';
+                    else if (computerChoiceFile === 'rock2.png') result = '平手';
+                    else if (computerChoiceFile === 'paper2.png') result = '玩家輸';
+                } else if (playerChoice === 'b') {
+                    if (computerChoiceFile === 'scissors2.png') result = '玩家輸';
+                    else if (computerChoiceFile === 'rock2.png') result = '玩家贏';
+                    else if (computerChoiceFile === 'paper2.png') result = '平手';
+                }
+
+                resultDiv.textContent = result;
+            });
+        });
+    </script>
+
 </body>
 </html>
