@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kitten RPS Game - Play</title>
     <style>
-        /* 背景與首頁一致 */
         body {
             background: linear-gradient(to bottom, #f5f0e1, #e8dfc6);
             font-family: Arial, sans-serif;
@@ -100,26 +99,31 @@
             color: #4b0082;
             font-size: 6vw;
             font-weight: bold;
-            margin-bottom: 3vh;
+            margin-bottom: 0.5vh; /* 與下一行間距縮小 */
         }
 
         #hint-text {
             color: #4b0082;
-            font-size: 4vw;
+            font-size: 5vw;
             margin-bottom: 3vh;
         }
 
         #result {
-            font-size: 26px;
+            font-size: 8vw; /* 比前一行大 */
             font-weight: bold;
             color: #4b0082;
-            margin-top: 20px;
+            min-height: 8vw; /* 保持位置空間 */
         }
 
         #emoji-display {
-            font-size: 80px;
-            margin-top: 3vh;
+            font-size: 160px; /* 蓋住貓咪臉 */
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
         }
+
     </style>
 </head>
 <body>
@@ -132,6 +136,7 @@
         <div id="kitten-container" style="position: relative;">
             <img src="kitten.png" id="kitten-img" class="fade-in">
             <img src="" id="computer-choice" alt="">
+            <div id="emoji-display"></div>
         </div>
 
         <!-- 很樂意 / 不樂意按鈕 -->
@@ -139,9 +144,6 @@
             <button id="yes-btn">很樂意</button>
             <button id="no-btn">不樂意</button>
         </div>
-
-        <!-- 顯示 emoji -->
-        <div id="emoji-display"></div>
 
         <!-- 準備好了嗎文字 -->
         <div id="status-text" class="fade-in" style="display:none;">準備好了嗎？</div>
@@ -165,7 +167,6 @@
             element.classList.add('visible');
         }
 
-        // 元素
         const introText = document.getElementById('intro-text');
         const kittenImg = document.getElementById('kitten-img');
         const choiceButtons = document.getElementById('choice-buttons');
@@ -181,9 +182,9 @@
 
         const computerOptions = ['scissors2.png', 'rock2.png', 'paper2.png'];
 
-        // 初次淡入
+        // 初次淡入，增加延遲
         window.addEventListener('load', () => {
-            setTimeout(() => fadeIn(introText), 100);
+            fadeIn(introText);
             setTimeout(() => fadeIn(kittenImg), 800);
             setTimeout(() => fadeIn(choiceButtons), 1600);
         });
@@ -192,29 +193,25 @@
         let noClickCount = 0;
         noBtn.addEventListener('click', () => {
             noClickCount++;
-            if (noClickCount === 1) {
-                emojiDisplay.textContent = '🥺';
-            } else if (noClickCount >= 2) {
-                emojiDisplay.textContent = '🥹';
-            }
+            if (noClickCount === 1) emojiDisplay.textContent = '🥺';
+            else if (noClickCount >= 2) emojiDisplay.textContent = '🥹';
         });
 
         // 很樂意按鈕邏輯
         yesBtn.addEventListener('click', () => {
-            // 淡出文字與按鈕
             introText.style.display = 'none';
             choiceButtons.style.display = 'none';
             emojiDisplay.style.display = 'none';
 
-            // 顯示準備好了嗎 & 指示
+            // 顯示準備好了嗎 & 出拳提示
             statusText.style.display = 'block';
             hintText.style.display = 'block';
             fadeIn(statusText);
-            setTimeout(() => fadeIn(hintText), 400);
+            setTimeout(() => fadeIn(hintText), 300);
 
             // 顯示玩家出拳按鈕
             playerButtonsDiv.style.display = 'flex';
-            setTimeout(() => fadeIn(playerButtonsDiv), 800);
+            setTimeout(() => fadeIn(playerButtonsDiv), 600);
         });
 
         // 玩家出拳邏輯
@@ -225,6 +222,10 @@
                 // 電腦隨機出拳
                 const computerChoiceFile = computerOptions[Math.floor(Math.random() * 3)];
                 computerChoiceImg.src = computerChoiceFile;
+
+                // 玩家出拳後隱藏準備文字
+                statusText.style.display = 'none';
+                hintText.style.display = 'none';
 
                 // 判定勝負
                 let result = '';
