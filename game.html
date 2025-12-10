@@ -1,251 +1,233 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitten RPS Game - Play</title>
-    <style>
-        body {
-            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            flex-direction: column;
-            margin: 0;
-            padding: 0 10px;
-            box-sizing: border-box;
-            min-height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitten RPS Game - Play</title>
+<style>
+body {
+    background: linear-gradient(to bottom, #f5f0e1, #e8dfc6);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    margin: 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
 
-        .center-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-top: 5vh;
-            text-align: center;
-            position: relative;
-        }
+.center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 5vh;
+    text-align: center;
+    position: relative;
+}
 
-        .fade-in {
-            opacity: 0;
-            transition: opacity 0.8s;
-        }
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.8s;
+}
 
-        .visible {
-            opacity: 1;
-        }
+.visible {
+    opacity: 1;
+}
 
-        #intro-text {
-            color: #4b0082;
-            font-size: 8vw;
-            font-weight: bold;
-            margin-bottom: 3vh;
-            word-break: keep-all;
-        }
+#intro-text {
+    color: #4b0082;
+    font-size: 8vw;
+    font-weight: bold;
+    margin-bottom: 3vh;
+    word-break: keep-all;
+}
 
-        #kitten-img {
-            max-width: 220px;
-            height: auto;
-            margin-bottom: 3vh;
-        }
+#kitten-img {
+    max-width: 220px;
+    height: auto;
+    margin-bottom: 3vh;
+}
 
-        .choice-buttons, .player-buttons {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 3vh;
-        }
+.choice-buttons, .player-buttons {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 3vh;
+}
 
-        .choice-buttons button {
-            padding: 12px 30px;
-            font-size: 20px;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+.choice-buttons button {
+    padding: 12px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
 
-        .choice-buttons button:hover {
-            transform: scale(1.05);
-        }
+.choice-buttons button:hover {
+    transform: scale(1.05);
+}
 
-        #yes-btn {
-            background-color: #6ca0dc; /* 溫和藍 */
-            color: #fff;
-        }
+#yes-btn {
+    background-color: #6ca0dc;
+    color: #fff;
+}
 
-        #no-btn {
-            background-color: #e58b8b; /* 溫和紅 */
-            color: #fff;
-        }
+#no-btn {
+    background-color: #e58b8b;
+    color: #fff;
+}
 
-        .player-buttons img {
-            width: 70px;
-            height: 70px;
-            cursor: pointer;
-        }
+.player-buttons img {
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+}
 
-        #computer-choice {
-            position: absolute;
-            left: 5%;
-            bottom: 5%;
-            max-width: 25%; /* 根據 kitten 大小比例放大 */
-            height: auto;
-            z-index: 2;
-        }
+#computer-choice {
+    position: absolute;
+    left: 5%;
+    bottom: 5%;
+    max-width: 25%;
+    height: auto;
+    z-index: 2;
+}
 
-        #status-text {
-            color: #4b0082;
-            font-size: 6vw;
-            font-weight: bold;
-            margin-bottom: 0.5vh;
-        }
+#status-text {
+    color: #4b0082;
+    font-size: 6vw;
+    font-weight: bold;
+    margin-bottom: 0.5vh;
+}
 
-        #hint-text {
-            color: #4b0082;
-            font-size: 5vw;
-            margin-bottom: 3vh;
-        }
+#hint-text {
+    color: #4b0082;
+    font-size: 5vw;
+    margin-bottom: 3vh;
+}
 
-        #result {
-            font-size: 8vw; /* 比前一行大 */
-            font-weight: bold;
-            color: #4b0082;
-            min-height: 8vw; /* 保留空間 */
-        }
+#result {
+    font-size: 8vw;
+    font-weight: bold;
+    color: #4b0082;
+    min-height: 8vw;
+    margin-bottom: 10px; /* 顯示在按鈕上方 */
+}
 
-        #emoji-display {
-            font-size: 30vw; /* 自適應不同手機尺寸 */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            line-height: 1;
-        }
-
-    </style>
+#emoji-display {
+    font-size: 45vw; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    line-height: 1;
+    z-index: 5;
+}
+</style>
 </head>
 <body>
-    <div class="center-container">
 
-        <!-- 歡迎文字 -->
-        <div id="intro-text" class="fade-in">嘿，能和小貓猜個拳嗎？</div>
-
-        <!-- 小貓圖片 -->
-        <div id="kitten-container" style="position: relative;">
-            <img src="kitten.png" id="kitten-img" class="fade-in">
-            <img src="" id="computer-choice" alt="">
-            <div id="emoji-display"></div>
-        </div>
-
-        <!-- 很樂意 / 不樂意按鈕 -->
-        <div class="choice-buttons fade-in" id="choice-buttons">
-            <button id="yes-btn">很樂意</button>
-            <button id="no-btn">不樂意</button>
-        </div>
-
-        <!-- 準備好了嗎文字 -->
-        <div id="status-text" class="fade-in" style="display:none;">準備好了嗎？</div>
-        <div id="hint-text" class="fade-in" style="display:none;">好了就點擊出拳吧</div>
-
-        <!-- 玩家出拳按鈕 -->
-        <div class="player-buttons fade-in" id="player-buttons" style="display:flex; visibility:hidden;">
-            <img src="r.png" alt="剪刀" data-choice="r">
-            <img src="g.png" alt="石頭" data-choice="g">
-            <img src="b.png" alt="布" data-choice="b">
-        </div>
-
-        <!-- 結果 -->
-        <div id="result"></div>
-
+<div class="center-container">
+    <div id="intro-text" class="fade-in">嘿，能和小貓猜個拳嗎？</div>
+    <div id="kitten-container">
+        <img src="kitten.png" id="kitten-img" class="fade-in">
+        <img src="" id="computer-choice" alt="">
+        <div id="emoji-display"></div>
     </div>
 
-    <script>
-        // 淡入函數
-        function fadeIn(element) {
-            element.classList.add('visible');
+    <div class="choice-buttons fade-in" id="choice-btns" style="visibility:hidden;">
+        <button id="yes-btn">很樂意</button>
+        <button id="no-btn">不樂意</button>
+    </div>
+
+    <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
+    <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
+
+    <div id="result"></div>
+
+    <div class="player-buttons fade-in" id="player-buttons" style="visibility:hidden;">
+        <img src="r.png" alt="剪刀" data-choice="r">
+        <img src="g.png" alt="石頭" data-choice="g">
+        <img src="b.png" alt="布" data-choice="b">
+    </div>
+</div>
+
+<script>
+const introText = document.getElementById('intro-text');
+const kittenImg = document.getElementById('kitten-img');
+const choiceBtns = document.getElementById('choice-btns');
+const yesBtn = document.getElementById('yes-btn');
+const noBtn = document.getElementById('no-btn');
+const statusText = document.getElementById('status-text');
+const hintText = document.getElementById('hint-text');
+const playerButtons = document.querySelectorAll('#player-buttons img');
+const playerBtnContainer = document.getElementById('player-buttons');
+const computerChoiceImg = document.getElementById('computer-choice');
+const resultDiv = document.getElementById('result');
+const emojiDisplay = document.getElementById('emoji-display');
+
+const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
+let noClickCount = 0;
+
+// 初始淡入 intro text -> kitten -> choice buttons
+setTimeout(()=>{introText.classList.add('visible');}, 200);
+setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
+setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
+
+// 點擊不樂意
+noBtn.addEventListener('click',()=>{
+    noClickCount++;
+    if(noClickCount===1) emojiDisplay.textContent='🥺';
+    else emojiDisplay.textContent='🥹';
+});
+
+// 點擊很樂意
+yesBtn.addEventListener('click',()=>{
+    // 隱藏文字和按鈕
+    introText.style.display='none';
+    choiceBtns.style.display='none';
+    emojiDisplay.textContent='';
+    // 顯示準備文字和玩家按鈕
+    setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
+    setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
+    setTimeout(()=>{playerBtnContainer.style.visibility='visible'; playerBtnContainer.classList.add('visible');},1800);
+});
+
+// 玩家出拳
+playerButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        const playerChoice = btn.getAttribute('data-choice');
+        const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
+        computerChoiceImg.src = computerChoiceFile;
+
+        // 隱藏準備文字，但保留空位
+        statusText.style.visibility='hidden';
+        hintText.style.visibility='hidden';
+
+        // 判定勝負
+        let result = '';
+        if(playerChoice==='r'){
+            if(computerChoiceFile==='scissors2.png') result='平手';
+            else if(computerChoiceFile==='rock2.png') result='玩家輸';
+            else if(computerChoiceFile==='paper2.png') result='玩家贏';
+        } else if(playerChoice==='g'){
+            if(computerChoiceFile==='scissors2.png') result='玩家贏';
+            else if(computerChoiceFile==='rock2.png') result='平手';
+            else if(computerChoiceFile==='paper2.png') result='玩家輸';
+        } else if(playerChoice==='b'){
+            if(computerChoiceFile==='scissors2.png') result='玩家輸';
+            else if(computerChoiceFile==='rock2.png') result='玩家贏';
+            else if(computerChoiceFile==='paper2.png') result='平手';
         }
 
-        const introText = document.getElementById('intro-text');
-        const kittenImg = document.getElementById('kitten-img');
-        const choiceButtons = document.getElementById('choice-buttons');
-        const yesBtn = document.getElementById('yes-btn');
-        const noBtn = document.getElementById('no-btn');
-        const emojiDisplay = document.getElementById('emoji-display');
-        const statusText = document.getElementById('status-text');
-        const hintText = document.getElementById('hint-text');
-        const playerButtonsDiv = document.getElementById('player-buttons');
-        const playerButtons = document.querySelectorAll('#player-buttons img');
-        const computerChoiceImg = document.getElementById('computer-choice');
-        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = result;
+    });
+});
+</script>
 
-        const computerOptions = ['scissors2.png', 'rock2.png', 'paper2.png'];
-
-        // 初次淡入，增加延遲
-        window.addEventListener('load', () => {
-            fadeIn(introText);
-            setTimeout(() => fadeIn(kittenImg), 800);
-            setTimeout(() => fadeIn(choiceButtons), 1600);
-        });
-
-        // 不樂意按鈕邏輯
-        let noClickCount = 0;
-        noBtn.addEventListener('click', () => {
-            noClickCount++;
-            if (noClickCount === 1) emojiDisplay.textContent = '🥺';
-            else if (noClickCount >= 2) emojiDisplay.textContent = '🥹';
-        });
-
-        // 很樂意按鈕邏輯
-        yesBtn.addEventListener('click', () => {
-            introText.style.display = 'none';
-            choiceButtons.style.display = 'none';
-            emojiDisplay.style.display = 'none';
-
-            // 顯示準備好了嗎 & 出拳提示，每行淡入 0.8s
-            statusText.style.display = 'block';
-            setTimeout(() => fadeIn(statusText), 0);         // 立即淡入
-            hintText.style.display = 'block';
-            setTimeout(() => fadeIn(hintText), 800);        // 延遲 0.8 秒
-            playerButtonsDiv.style.visibility = 'visible';
-            setTimeout(() => fadeIn(playerButtonsDiv), 1600); // 再延遲 0.8 秒
-        });
-
-        // 玩家出拳邏輯
-        playerButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const playerChoice = btn.getAttribute('data-choice');
-
-                // 電腦隨機出拳
-                const computerChoiceFile = computerOptions[Math.floor(Math.random() * 3)];
-                computerChoiceImg.src = computerChoiceFile;
-
-                // 玩家出拳後隱藏準備文字，但保留空位
-                statusText.style.visibility = 'hidden';
-                hintText.style.visibility = 'hidden';
-
-                // 判定勝負
-                let result = '';
-                if (playerChoice === 'r') {
-                    if (computerChoiceFile === 'scissors2.png') result = '平手';
-                    else if (computerChoiceFile === 'rock2.png') result = '玩家輸';
-                    else if (computerChoiceFile === 'paper2.png') result = '玩家贏';
-                } else if (playerChoice === 'g') {
-                    if (computerChoiceFile === 'scissors2.png') result = '玩家贏';
-                    else if (computerChoiceFile === 'rock2.png') result = '平手';
-                    else if (computerChoiceFile === 'paper2.png') result = '玩家輸';
-                } else if (playerChoice === 'b') {
-                    if (computerChoiceFile === 'scissors2.png') result = '玩家輸';
-                    else if (computerChoiceFile === 'rock2.png') result = '玩家贏';
-                    else if (computerChoiceFile === 'paper2.png') result = '平手';
-                }
-
-                resultDiv.textContent = result;
-            });
-        });
-    </script>
 </body>
 </html>
