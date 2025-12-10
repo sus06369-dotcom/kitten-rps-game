@@ -58,17 +58,21 @@ body {
 
 #computer-choice {
     position: absolute;
-    left: 0%;
     bottom: 0%;
-    width: 40%;      /* 放大電腦出拳 */
+    left: 0%;
     height: auto;
     z-index: 2;
 }
 
+/* 個別大小設定 */
+#computer-choice.scissors { width: 40%; }
+#computer-choice.rock { width: 50%; }
+#computer-choice.paper { width: 50%; }
+
 #emoji-display {
     font-size: 45vw; 
     position: absolute;
-    top: 52%;         /* 精準對齊貓臉 */
+    top: 52%;
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -92,19 +96,10 @@ body {
     transition: transform 0.2s;
 }
 
-.choice-buttons button:hover {
-    transform: scale(1.05);
-}
+.choice-buttons button:hover { transform: scale(1.05); }
 
-#yes-btn {
-    background-color: #6ca0dc;
-    color: #fff;
-}
-
-#no-btn {
-    background-color: #e58b8b;
-    color: #fff;
-}
+#yes-btn { background-color: #6ca0dc; color: #fff; }
+#no-btn { background-color: #e58b8b; color: #fff; }
 
 #status-text {
     color: #4b0082;
@@ -124,7 +119,7 @@ body {
     font-weight: bold;
     color: #4b0082;
     min-height: 8vw;
-    margin-bottom: 10px; /* 顯示在按鈕上方 */
+    margin-bottom: 10px;
 }
 
 .player-buttons img {
@@ -210,6 +205,12 @@ playerButtons.forEach(btn=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
         computerChoiceImg.src = computerChoiceFile;
+
+        // 設定對應 class 控制大小
+        computerChoiceImg.className = '';
+        if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
+        else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
+        else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
         // 隱藏準備文字，但保留空位
         statusText.style.visibility='hidden';
