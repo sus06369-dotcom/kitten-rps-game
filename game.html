@@ -45,10 +45,35 @@ body {
     word-break: keep-all;
 }
 
+#kitten-container {
+    position: relative;
+    margin-bottom: 3vh;
+}
+
 #kitten-img {
     max-width: 220px;
     height: auto;
     margin-bottom: 3vh;
+}
+
+#computer-choice {
+    position: absolute;
+    left: 0%;
+    bottom: 0%;
+    width: 40%;      /* 放大電腦出拳 */
+    height: auto;
+    z-index: 2;
+}
+
+#emoji-display {
+    font-size: 45vw; 
+    position: absolute;
+    top: 52%;         /* 精準對齊貓臉 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    line-height: 1;
+    z-index: 5;
 }
 
 .choice-buttons, .player-buttons {
@@ -81,21 +106,6 @@ body {
     color: #fff;
 }
 
-.player-buttons img {
-    width: 70px;
-    height: 70px;
-    cursor: pointer;
-}
-
-#computer-choice {
-    position: absolute;
-    left: 5%;
-    bottom: 5%;
-    max-width: 25%;
-    height: auto;
-    z-index: 2;
-}
-
 #status-text {
     color: #4b0082;
     font-size: 6vw;
@@ -117,15 +127,10 @@ body {
     margin-bottom: 10px; /* 顯示在按鈕上方 */
 }
 
-#emoji-display {
-    font-size: 45vw; 
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    line-height: 1;
-    z-index: 5;
+.player-buttons img {
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -133,6 +138,7 @@ body {
 
 <div class="center-container">
     <div id="intro-text" class="fade-in">嘿，能和小貓猜個拳嗎？</div>
+    
     <div id="kitten-container">
         <img src="kitten.png" id="kitten-img" class="fade-in">
         <img src="" id="computer-choice" alt="">
@@ -173,7 +179,7 @@ const emojiDisplay = document.getElementById('emoji-display');
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 
-// 初始淡入 intro text -> kitten -> choice buttons
+// 初始淡入
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
@@ -187,10 +193,11 @@ noBtn.addEventListener('click',()=>{
 
 // 點擊很樂意
 yesBtn.addEventListener('click',()=>{
-    // 隱藏文字和按鈕
+    // 隱藏初始文字和按鈕
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
+
     // 顯示準備文字和玩家按鈕
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
