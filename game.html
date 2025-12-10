@@ -25,6 +25,7 @@
             width: 100%;
             margin-top: 5vh;
             text-align: center;
+            position: relative;
         }
 
         .fade-in {
@@ -88,9 +89,9 @@
 
         #computer-choice {
             position: absolute;
-            left: -5px;
-            bottom: -5px;
-            max-width: 80px;
+            left: 5%;
+            bottom: 5%;
+            max-width: 25%; /* 根據 kitten 大小比例放大 */
             height: auto;
             z-index: 2;
         }
@@ -99,7 +100,7 @@
             color: #4b0082;
             font-size: 6vw;
             font-weight: bold;
-            margin-bottom: 0.5vh; /* 與下一行間距縮小 */
+            margin-bottom: 0.5vh;
         }
 
         #hint-text {
@@ -112,16 +113,17 @@
             font-size: 8vw; /* 比前一行大 */
             font-weight: bold;
             color: #4b0082;
-            min-height: 8vw; /* 保持位置空間 */
+            min-height: 8vw; /* 保留空間 */
         }
 
         #emoji-display {
-            font-size: 160px; /* 蓋住貓咪臉 */
+            font-size: 30vw; /* 自適應不同手機尺寸 */
             position: absolute;
-            top: 0;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             pointer-events: none;
+            line-height: 1;
         }
 
     </style>
@@ -150,7 +152,7 @@
         <div id="hint-text" class="fade-in" style="display:none;">好了就點擊出拳吧</div>
 
         <!-- 玩家出拳按鈕 -->
-        <div class="player-buttons fade-in" id="player-buttons" style="display:none;">
+        <div class="player-buttons fade-in" id="player-buttons" style="display:flex; visibility:hidden;">
             <img src="r.png" alt="剪刀" data-choice="r">
             <img src="g.png" alt="石頭" data-choice="g">
             <img src="b.png" alt="布" data-choice="b">
@@ -203,15 +205,13 @@
             choiceButtons.style.display = 'none';
             emojiDisplay.style.display = 'none';
 
-            // 顯示準備好了嗎 & 出拳提示
+            // 顯示準備好了嗎 & 出拳提示，每行淡入 0.8s
             statusText.style.display = 'block';
+            setTimeout(() => fadeIn(statusText), 0);         // 立即淡入
             hintText.style.display = 'block';
-            fadeIn(statusText);
-            setTimeout(() => fadeIn(hintText), 300);
-
-            // 顯示玩家出拳按鈕
-            playerButtonsDiv.style.display = 'flex';
-            setTimeout(() => fadeIn(playerButtonsDiv), 600);
+            setTimeout(() => fadeIn(hintText), 800);        // 延遲 0.8 秒
+            playerButtonsDiv.style.visibility = 'visible';
+            setTimeout(() => fadeIn(playerButtonsDiv), 1600); // 再延遲 0.8 秒
         });
 
         // 玩家出拳邏輯
@@ -223,9 +223,9 @@
                 const computerChoiceFile = computerOptions[Math.floor(Math.random() * 3)];
                 computerChoiceImg.src = computerChoiceFile;
 
-                // 玩家出拳後隱藏準備文字
-                statusText.style.display = 'none';
-                hintText.style.display = 'none';
+                // 玩家出拳後隱藏準備文字，但保留空位
+                statusText.style.visibility = 'hidden';
+                hintText.style.visibility = 'hidden';
 
                 // 判定勝負
                 let result = '';
