@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitten RPS Game - Play</title>
+    <style>
+        /* 背景與首頁一致 */
+        body {
+            background: linear-gradient(to bottom, #f5f0e1, #e8dfc6);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+            margin: 0;
+            padding: 0 10px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 5vh;
+            text-align: center;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+
+        .visible {
+            opacity: 1;
+        }
+
+        #intro-text {
+            color: #4b0082;
+            font-size: 8vw;
+            font-weight: bold;
+            margin-bottom: 3vh;
+            word-break: keep-all;
+        }
+
+        #kitten-img {
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 3vh;
+        }
+
+        .choice-buttons, .player-buttons {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 3vh;
+        }
+
+        .choice-buttons button {
+            padding: 12px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .choice-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        #yes-btn {
+            background-color: #6ca0dc; /* 溫和藍 */
+            color: #fff;
+        }
+
+        #no-btn {
+            background-color: #e58b8b; /* 溫和紅 */
+            color: #fff;
+        }
+
+        .player-buttons img {
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+        }
+
+        #computer-choice {
+            position: absolute;
+            left: -5px;
+            bottom: -5px;
+            max-width: 80px;
+            height: auto;
+            z-index: 2;
+        }
+
+        #status-text {
+            color: #4b0082;
+            font-size: 6vw;
+            font-weight: bold;
+            margin-bottom: 3vh;
+        }
+
+        #hint-text {
+            color: #4b0082;
+            font-size: 4vw;
+            margin-bottom: 3vh;
+        }
+
+        #result {
+            font-size: 26px;
+            font-weight: bold;
+            color: #4b0082;
+            margin-top: 20px;
+        }
+
+        #emoji-display {
+            font-size: 80px;
+            margin-top: 3vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="center-container">
+
+        <!-- 歡迎文字 -->
+        <div id="intro-text" class="fade-in">嘿，能和小貓猜個拳嗎？</div>
+
+        <!-- 小貓圖片 -->
+        <div id="kitten-container" style="position: relative;">
+            <img src="kitten.png" id="kitten-img" class="fade-in">
+            <img src="" id="computer-choice" alt="">
+        </div>
+
+        <!-- 很樂意 / 不樂意按鈕 -->
+        <div class="choice-buttons fade-in" id="choice-buttons">
+            <button id="yes-btn">很樂意</button>
+            <button id="no-btn">不樂意</button>
+        </div>
+
+        <!-- 顯示 emoji -->
+        <div id="emoji-display"></div>
+
+        <!-- 準備好了嗎文字 -->
+        <div id="status-text" class="fade-in" style="display:none;">準備好了嗎？</div>
+        <div id="hint-text" class="fade-in" style="display:none;">好了就點擊出拳吧</div>
+
+        <!-- 玩家出拳按鈕 -->
+        <div class="player-buttons fade-in" id="player-buttons" style="display:none;">
+            <img src="r.png" alt="剪刀" data-choice="r">
+            <img src="g.png" alt="石頭" data-choice="g">
+            <img src="b.png" alt="布" data-choice="b">
+        </div>
+
+        <!-- 結果 -->
+        <div id="result"></div>
+
+    </div>
+
+    <script>
+        // 淡入函數
+        function fadeIn(element) {
+            element.classList.add('visible');
+        }
+
+        // 元素
+        const introText = document.getElementById('intro-text');
+        const kittenImg = document.getElementById('kitten-img');
+        const choiceButtons = document.getElementById('choice-buttons');
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const emojiDisplay = document.getElementById('emoji-display');
+        const statusText = document.getElementById('status-text');
+        const hintText = document.getElementById('hint-text');
+        const playerButtonsDiv = document.getElementById('player-buttons');
+        const playerButtons = document.querySelectorAll('#player-buttons img');
+        const computerChoiceImg = document.getElementById('computer-choice');
+        const resultDiv = document.getElementById('result');
+
+        const computerOptions = ['scissors2.png', 'rock2.png', 'paper2.png'];
+
+        // 初次淡入
+        window.addEventListener('load', () => {
+            setTimeout(() => fadeIn(introText), 100);
+            setTimeout(() => fadeIn(kittenImg), 800);
+            setTimeout(() => fadeIn(choiceButtons), 1600);
+        });
+
+        // 不樂意按鈕邏輯
+        let noClickCount = 0;
+        noBtn.addEventListener('click', () => {
+            noClickCount++;
+            if (noClickCount === 1) {
+                emojiDisplay.textContent = '🥺';
+            } else if (noClickCount >= 2) {
+                emojiDisplay.textContent = '🥹';
+            }
+        });
+
+        // 很樂意按鈕邏輯
+        yesBtn.addEventListener('click', () => {
+            // 淡出文字與按鈕
+            introText.style.display = 'none';
+            choiceButtons.style.display = 'none';
+            emojiDisplay.style.display = 'none';
+
+            // 顯示準備好了嗎 & 指示
+            statusText.style.display = 'block';
+            hintText.style.display = 'block';
+            fadeIn(statusText);
+            setTimeout(() => fadeIn(hintText), 400);
+
+            // 顯示玩家出拳按鈕
+            playerButtonsDiv.style.display = 'flex';
+            setTimeout(() => fadeIn(playerButtonsDiv), 800);
+        });
+
+        // 玩家出拳邏輯
+        playerButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const playerChoice = btn.getAttribute('data-choice');
+
+                // 電腦隨機出拳
+                const computerChoiceFile = computerOptions[Math.floor(Math.random() * 3)];
+                computerChoiceImg.src = computerChoiceFile;
+
+                // 判定勝負
+                let result = '';
+                if (playerChoice === 'r') {
+                    if (computerChoiceFile === 'scissors2.png') result = '平手';
+                    else if (computerChoiceFile === 'rock2.png') result = '玩家輸';
+                    else if (computerChoiceFile === 'paper2.png') result = '玩家贏';
+                } else if (playerChoice === 'g') {
+                    if (computerChoiceFile === 'scissors2.png') result = '玩家贏';
+                    else if (computerChoiceFile === 'rock2.png') result = '平手';
+                    else if (computerChoiceFile === 'paper2.png') result = '玩家輸';
+                } else if (playerChoice === 'b') {
+                    if (computerChoiceFile === 'scissors2.png') result = '玩家輸';
+                    else if (computerChoiceFile === 'rock2.png') result = '玩家贏';
+                    else if (computerChoiceFile === 'paper2.png') result = '平手';
+                }
+
+                resultDiv.textContent = result;
+            });
+        });
+    </script>
+</body>
+</html>
