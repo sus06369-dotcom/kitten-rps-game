@@ -48,7 +48,6 @@ body {
 #kitten-container {
     position: relative;
     margin-bottom: 3vh;
-    z-index: 1;
 }
 
 #kitten-img {
@@ -147,7 +146,7 @@ body {
 /* 勝利Candy圖樣式 */
 #victory-container {
     position: absolute;
-    bottom: 120px; /* 調整到小貓下方 */
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     pointer-events: none;
@@ -157,8 +156,8 @@ body {
 .candy-close, .candy {
     position: absolute;
     left: 50%;
-    bottom: 0;
-    transform: translateX(-50%) translateY(20px) scale(0.8);
+    bottom: 50px;
+    transform: translateX(-50%) scale(0.8);
     opacity: 0;
     transition: opacity 0.8s, transform 0.8s;
     max-width: 100px;
@@ -171,16 +170,6 @@ body {
     height: 30px;
     pointer-events: none;
     top: -50px;
-    animation-name: fall;
-    animation-timing-function: ease-in;
-    animation-fill-mode: forwards;
-    z-index: 5;
-}
-
-@keyframes fall {
-    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
-    50% { transform: translateY(50vh) translateX(20px) rotate(180deg); }
-    100% { transform: translateY(100vh) translateX(-20px) rotate(360deg); opacity: 0; }
 }
 </style>
 </head>
@@ -240,7 +229,8 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    emojiDisplay.textContent = noClickCount===1 ? '🥺' : '🥹';
+    if(noClickCount===1) emojiDisplay.textContent='🥺';
+    else emojiDisplay.textContent='🥹';
 });
 
 // 點擊很樂意
@@ -299,49 +289,60 @@ playerButtons.forEach(btn=>{
         if(result==='Win'){
             computerChoiceImg.src = ''; // 隱藏電腦出拳
 
-            // Candy close
+            // 1. candy_close.png
             const candyClose = document.createElement('img');
-            candyClose.src='candy_close.png';
-            candyClose.className='candy-close';
+            candyClose.src = 'candy_close.png';
+            candyClose.className = 'candy-close';
             victoryContainer.appendChild(candyClose);
 
             setTimeout(()=>{
-                candyClose.style.opacity='1';
-                candyClose.style.transform='translateX(-50%) translateY(-20px) scale(1)';
-            },100);
+                candyClose.style.opacity = '1';
+                candyClose.style.transform = 'translateX(-50%) scale(1)';
+            }, 100);
 
-            // Candy
+            // 2. candy.png 放大疊加
             const candy = document.createElement('img');
-            candy.src='candy.png';
-            candy.className='candy';
+            candy.src = 'candy.png';
+            candy.className = 'candy';
             victoryContainer.appendChild(candy);
 
             setTimeout(()=>{
-                candy.style.opacity='1';
-                candy.style.transform='translateX(-50%) translateY(-40px) scale(1.2)';
-            },600);
+                candy.style.opacity = '1';
+                candy.style.transform = 'translateX(-50%) scale(1.2)';
+            }, 600);
 
-            // 彩屑掉落
-            const fallingItems=['c.png','ch.png','pp.png'];
+            // 3. 彩屑 + 素材圖片隨機飄落
+            const fallingItems = ['c.png','ch.png','pp.png'];
             for(let i=0;i<20;i++){
-                const item=document.createElement('img');
-                item.src=fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                item.className='falling-item';
-                item.style.left=Math.random()*100+'vw';
-                item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
+                const item = document.createElement('img');
+                const file = fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                item.src = file;
+                item.className = 'falling-item';
                 document.body.appendChild(item);
-                setTimeout(()=>{document.body.removeChild(item);},3000);
+
+                // 隨機大小、水平位置、旋轉角度、速度
+                const size = 20 + Math.random()*20;
+                item.style.width = size+'px';
+                item.style.height = size+'px';
+                const startX = Math.random()*100;
+                item.style.left = startX+'vw';
+                const rotate = Math.random()*360;
+                const drift = (Math.random()-0.5)*50; 
+                const duration = 2 + Math.random()*2; 
+
+                item.animate([
+                    { transform: `translateY(0px) translateX(0px) rotate(${rotate}deg)`, opacity: 1 },
+                    { transform: `translateY(100vh) translateX(${drift}px) rotate(${rotate+360}deg)`, opacity: 0 }
+                ], {
+                    duration: duration*1000,
+                    easing: 'ease-in',
+                    fill: 'forwards'
+                });
+
+                setTimeout(()=>{document.body.removeChild(item);}, duration*1000);
             }
 
-            // 移除 Candy
+            // 移除 Candy 圖片
             setTimeout(()=>{
                 if(candyClose) victoryContainer.removeChild(candyClose);
                 if(candy) victoryContainer.removeChild(candy);
-            },2500);
-        }
-    });
-});
-</script>
-
-</body>
-</html>
