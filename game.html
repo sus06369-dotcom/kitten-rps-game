@@ -117,8 +117,13 @@ body {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    margin: 15px 0; /* 與上下間隔平均 */
+    margin: 0; /* 移除原本 margin 影響 */
     min-height: 1em;
+    /* 新增定位讓結果文字位於小貓圖與玩家按鈕之間 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px; /* 可視需要調整高度，確保上下間距平均 */
 }
 
 .player-buttons {
