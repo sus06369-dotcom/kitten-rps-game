@@ -117,7 +117,7 @@ body {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    margin: 15px 0;
+    margin: 15px 0; /* 與玩家按鈕間距 */
 }
 
 #game-display {
@@ -125,7 +125,6 @@ body {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    height: 200px;
     position: relative;
 }
 
@@ -143,26 +142,6 @@ body {
     transition: opacity 0.8s, transform 0.8s;
 }
 
-/* 勝利Candy圖樣式 */
-#victory-container {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 10;
-}
-
-.candy-close, .candy {
-    position: absolute;
-    left: 50%;
-    bottom: 50px;
-    transform: translateX(-50%) scale(0.8);
-    opacity: 0;
-    transition: opacity 0.8s, transform 0.8s;
-    max-width: 100px;
-}
-
 /* 彩屑掉落 */
 .falling-item {
     position: fixed;
@@ -170,6 +149,14 @@ body {
     height: 30px;
     pointer-events: none;
     top: -50px;
+    animation-name: fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 </style>
 </head>
@@ -199,7 +186,6 @@ body {
             <img src="g.png" alt="石頭" data-choice="g">
             <img src="b.png" alt="布" data-choice="b">
         </div>
-        <div id="victory-container"></div>
     </div>
 </div>
 
@@ -216,7 +202,6 @@ const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
-const victoryContainer = document.getElementById('victory-container');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
@@ -248,7 +233,7 @@ yesBtn.addEventListener('click',()=>{
             setTimeout(()=>{
                 btn.style.opacity = '1';
                 btn.style.transform = 'translateY(0)';
-            }, i*400);
+            },i*400);
         });
     },1800);
 });
@@ -285,64 +270,25 @@ playerButtons.forEach(btn=>{
 
         resultDiv.textContent = result;
 
-        // 玩家勝利動畫
+        // 玩家勝利時彩屑掉落
         if(result==='Win'){
-            computerChoiceImg.src = ''; // 隱藏電腦出拳
-
-            // 1. candy_close.png
-            const candyClose = document.createElement('img');
-            candyClose.src = 'candy_close.png';
-            candyClose.className = 'candy-close';
-            victoryContainer.appendChild(candyClose);
-
-            setTimeout(()=>{
-                candyClose.style.opacity = '1';
-                candyClose.style.transform = 'translateX(-50%) scale(1)';
-            }, 100);
-
-            // 2. candy.png 放大疊加
-            const candy = document.createElement('img');
-            candy.src = 'candy.png';
-            candy.className = 'candy';
-            victoryContainer.appendChild(candy);
-
-            setTimeout(()=>{
-                candy.style.opacity = '1';
-                candy.style.transform = 'translateX(-50%) scale(1.2)';
-            }, 600);
-
-            // 3. 彩屑 + 素材圖片隨機飄落
-            const fallingItems = ['c.png','ch.png','pp.png'];
+            computerChoiceImg.src=''; // 消失電腦出拳
+            const fallingItems=['c.png','ch.png','pp.png'];
             for(let i=0;i<20;i++){
-                const item = document.createElement('img');
-                const file = fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                item.src = file;
-                item.className = 'falling-item';
+                const item=document.createElement('img');
+                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                item.src=file;
+                item.className='falling-item';
+                item.style.left=Math.random()*100+'vw';
+                item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
+                item.style.transform = `rotate(${Math.random()*360}deg)`; // 隨機角度
                 document.body.appendChild(item);
-
-                // 隨機大小、水平位置、旋轉角度、速度
-                const size = 20 + Math.random()*20;
-                item.style.width = size+'px';
-                item.style.height = size+'px';
-                const startX = Math.random()*100;
-                item.style.left = startX+'vw';
-                const rotate = Math.random()*360;
-                const drift = (Math.random()-0.5)*50; 
-                const duration = 2 + Math.random()*2; 
-
-                item.animate([
-                    { transform: `translateY(0px) translateX(0px) rotate(${rotate}deg)`, opacity: 1 },
-                    { transform: `translateY(100vh) translateX(${drift}px) rotate(${rotate+360}deg)`, opacity: 0 }
-                ], {
-                    duration: duration*1000,
-                    easing: 'ease-in',
-                    fill: 'forwards'
-                });
-
-                setTimeout(()=>{document.body.removeChild(item);}, duration*1000);
+                setTimeout(()=>{document.body.removeChild(item);},3000);
             }
+        }
+    });
+});
+</script>
 
-            // 移除 Candy 圖片
-            setTimeout(()=>{
-                if(candyClose) victoryContainer.removeChild(candyClose);
-                if(candy) victoryContainer.removeChild(candy);
+</body>
+</html>
