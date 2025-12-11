@@ -243,17 +243,17 @@ playerButtons.forEach(btn=>{
         // 判定勝負
         let result = '';
         if(playerChoice==='r'){
-            if(computerChoiceFile==='scissors2.png') result='平手';
-            else if(computerChoiceFile==='rock2.png') result='玩家輸';
-            else if(computerChoiceFile==='paper2.png') result='玩家贏';
+            if(computerChoiceFile==='scissors2.png') result='Draw';
+            else if(computerChoiceFile==='rock2.png') result='Lose';
+            else if(computerChoiceFile==='paper2.png') result='Win';
         } else if(playerChoice==='g'){
-            if(computerChoiceFile==='scissors2.png') result='玩家贏';
-            else if(computerChoiceFile==='rock2.png') result='平手';
-            else if(computerChoiceFile==='paper2.png') result='玩家輸';
+            if(computerChoiceFile==='scissors2.png') result='Win';
+            else if(computerChoiceFile==='rock2.png') result='Draw';
+            else if(computerChoiceFile==='paper2.png') result='Lose';
         } else if(playerChoice==='b'){
-            if(computerChoiceFile==='scissors2.png') result='玩家輸';
-            else if(computerChoiceFile==='rock2.png') result='玩家贏';
-            else if(computerChoiceFile==='paper2.png') result='平手';
+            if(computerChoiceFile==='scissors2.png') result='Lose';
+            else if(computerChoiceFile==='rock2.png') result='Win';
+            else if(computerChoiceFile==='paper2.png') result='Draw';
         }
 
         // 顯示結果，按鈕位置固定
