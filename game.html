@@ -64,14 +64,15 @@ body {
     z-index: 2;
 }
 
+/* 個別大小設定 */
 #computer-choice.scissors { width: 40%; }
 #computer-choice.rock { width: 55%; }
 #computer-choice.paper { width: 55%; }
 
 #emoji-display {
-    font-size: 50vw; 
+    font-size: 45vw; 
     position: absolute;
-    top: 52%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -105,12 +106,14 @@ body {
     font-size: 6vw;
     font-weight: bold;
     margin-bottom: 0.5vh;
+    min-height: 7vw; /* 保留空位 */
 }
 
 #hint-text {
     color: #4b0082;
     font-size: 5vw;
     margin-bottom: 3vh;
+    min-height: 6vw; /* 保留空位 */
 }
 
 #result {
@@ -118,16 +121,15 @@ body {
     font-weight: bold;
     color: #4b0082;
     min-height: 8vw;
-    margin: 30px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-bottom: 10px;
 }
 
 .player-buttons img {
     width: 70px;
     height: 70px;
     cursor: pointer;
+    transform: translateY(30px);
+    opacity: 0;
 }
 </style>
 </head>
@@ -147,16 +149,10 @@ body {
         <button id="no-btn">不樂意</button>
     </div>
 
-    <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
-    <div id="hint-text" class="fade-in" style="visibility:hidden;">(好了就點擊出拳吧)</div>
+    <div id="status-text" class="fade-in" style="visibility:hidden;"></div>
+    <div id="hint-text" class="fade-in" style="visibility:hidden;"></div>
 
-    <div id="result"></div>
-
-    <div class="player-buttons fade-in" id="player-buttons" style="visibility:hidden;">
-        <img src="r.png" alt="剪刀" data-choice="r">
-        <img src="g.png" alt="石頭" data-choice="g">
-        <img src="b.png" alt="布" data-choice="b">
-    </div>
+    <div id="player-buttons" class="player-buttons"></div>
 </div>
 
 <script>
@@ -167,10 +163,8 @@ const yesBtn = document.getElementById('yes-btn');
 const noBtn = document.getElementById('no-btn');
 const statusText = document.getElementById('status-text');
 const hintText = document.getElementById('hint-text');
-const playerButtons = document.querySelectorAll('#player-buttons img');
 const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
-const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
@@ -184,65 +178,75 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
+    emojiDisplay.style.fontSize='45vw';
     if(noClickCount===1) emojiDisplay.textContent='🥺';
     else emojiDisplay.textContent='🥹';
 });
 
 // 點擊很樂意
 yesBtn.addEventListener('click',()=>{
+    // 隱藏初始文字和按鈕
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
 
-    setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
-    setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
+    // 顯示準備文字
+    setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible'); statusText.textContent='準備好了嗎？';},200);
+    setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible'); hintText.textContent='好了就點擊出拳吧';},1000);
 
-    // 玩家按鈕淡入從下往上、左→右
-    setTimeout(()=>{
-        playerBtnContainer.style.visibility='visible';
-        playerButtons.forEach((btn,i)=>{
-            setTimeout(()=>{btn.classList.add('visible');}, i*800);
+    // 創建玩家按鈕並淡入
+    const playerChoices = [
+        {src:'r.png', choice:'r'},
+        {src:'g.png', choice:'g'},
+        {src:'b.png', choice:'b'}
+    ];
+    playerBtnContainer.innerHTML = '';
+    playerChoices.forEach((btnData,index)=>{
+        const btn = document.createElement('img');
+        btn.src = btnData.src;
+        btn.setAttribute('data-choice',btnData.choice);
+        btn.style.transition='opacity 0.8s, transform 0.8s';
+        btn.style.transform='translateY(30px)';
+        btn.style.opacity='0';
+        playerBtnContainer.appendChild(btn);
+
+        setTimeout(()=>{
+            btn.style.opacity='1';
+            btn.style.transform='translateY(0)';
+        }, index*400);
+
+        // 玩家出拳事件
+        btn.addEventListener('click',()=>{
+            const playerChoice = btn.getAttribute('data-choice');
+            const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
+            computerChoiceImg.src = computerChoiceFile;
+            computerChoiceImg.className='';
+            if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
+            else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
+            else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
+
+            // 判定勝負
+            let result='';
+            if(playerChoice==='r'){
+                if(computerChoiceFile==='scissors2.png') result='平手';
+                else if(computerChoiceFile==='rock2.png') result='玩家輸';
+                else if(computerChoiceFile==='paper2.png') result='玩家贏';
+            } else if(playerChoice==='g'){
+                if(computerChoiceFile==='scissors2.png') result='玩家贏';
+                else if(computerChoiceFile==='rock2.png') result='平手';
+                else if(computerChoiceFile==='paper2.png') result='玩家輸';
+            } else if(playerChoice==='b'){
+                if(computerChoiceFile==='scissors2.png') result='玩家輸';
+                else if(computerChoiceFile==='rock2.png') result='玩家贏';
+                else if(computerChoiceFile==='paper2.png') result='平手';
+            }
+
+            // 顯示結果在空位上
+            statusText.textContent = result;
         });
-    },1800);
-});
-
-// 玩家出拳
-playerButtons.forEach(btn=>{
-    btn.addEventListener('click',()=>{
-        const playerChoice = btn.getAttribute('data-choice');
-        const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
-        computerChoiceImg.src = computerChoiceFile;
-
-        computerChoiceImg.className = '';
-        if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
-        else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
-        else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
-
-        // 隱藏準備文字，但保留空位
-        statusText.style.visibility='hidden';
-        hintText.style.visibility='hidden';
-
-        // 判定勝負
-        let result = '';
-        if(playerChoice==='r'){
-            if(computerChoiceFile==='scissors2.png') result='平手';
-            else if(computerChoiceFile==='rock2.png') result='玩家輸';
-            else if(computerChoiceFile==='paper2.png') result='玩家贏';
-        } else if(playerChoice==='g'){
-            if(computerChoiceFile==='scissors2.png') result='玩家贏';
-            else if(computerChoiceFile==='rock2.png') result='平手';
-            else if(computerChoiceFile==='paper2.png') result='玩家輸';
-        } else if(playerChoice==='b'){
-            if(computerChoiceFile==='scissors2.png') result='玩家輸';
-            else if(computerChoiceFile==='rock2.png') result='玩家贏';
-            else if(computerChoiceFile==='paper2.png') result='平手';
-        }
-
-        resultDiv.textContent = result;
     });
 });
 </script>
 
 </body>
 </html>
-                                                        
