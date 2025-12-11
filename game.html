@@ -28,32 +28,128 @@ body {
     position: relative;
 }
 
-.fade-in { opacity: 0; transition: opacity 0.8s; }
-.visible { opacity: 1; }
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.8s;
+}
 
-#intro-text { color: #4b0082; font-size: 8vw; font-weight: bold; margin-bottom: 3vh; word-break: keep-all; }
-#kitten-container { position: relative; margin-bottom: 3vh; }
-#kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
-#computer-choice { position: absolute; bottom: 0%; left: 0%; height: auto; z-index: 2; }
-#computer-choice.scissors { width: 40%; } #computer-choice.rock { width: 50%; } #computer-choice.paper { width: 50%; }
-#emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
+.visible {
+    opacity: 1;
+}
 
-.choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
-.choice-buttons button { padding: 12px 30px; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
+#intro-text {
+    color: #4b0082;
+    font-size: 8vw;
+    font-weight: bold;
+    margin-bottom: 3vh;
+    word-break: keep-all;
+}
+
+#kitten-container {
+    position: relative;
+    margin-bottom: 3vh;
+}
+
+#kitten-img {
+    max-width: 220px;
+    height: auto;
+    margin-bottom: 3vh;
+}
+
+#computer-choice {
+    position: absolute;
+    bottom: 0%;
+    left: 0%;
+    height: auto;
+    z-index: 2;
+}
+
+#computer-choice.scissors { width: 40%; }
+#computer-choice.rock { width: 50%; }
+#computer-choice.paper { width: 50%; }
+
+#emoji-display {
+    font-size: 45vw; 
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    line-height: 1;
+    z-index: 5;
+}
+
+.choice-buttons {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 3vh;
+}
+
+.choice-buttons button {
+    padding: 12px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
 .choice-buttons button:hover { transform: scale(1.05); }
-#yes-btn { background-color: #6ca0dc; color: #fff; } #no-btn { background-color: #e58b8b; color: #fff; }
 
-#status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
-#hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
-#result { font-size: 8vw; font-weight: bold; color: #4b0082; margin: 15px 0; }
+#yes-btn { background-color: #6ca0dc; color: #fff; }
+#no-btn { background-color: #e58b8b; color: #fff; }
 
-#game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
-.player-buttons { display: flex; gap: 30px; }
-.player-buttons img { width: 70px; height: 70px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
+#status-text {
+    color: #4b0082;
+    font-size: 6vw;
+    font-weight: bold;
+    margin-bottom: 0.5vh;
+}
 
-/* 彩屑和素材掉落樣式 */
-.falling-item { position: fixed; pointer-events: none; top: -50px; animation-name: fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
-@keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(360deg); opacity:0; } }
+#hint-text {
+    color: #4b0082;
+    font-size: 5vw;
+    margin-bottom: 3vh;
+}
+
+#result {
+    font-size: 8vw;
+    font-weight: bold;
+    color: #4b0082;
+    margin: 15px 0; /* 與玩家按鈕間距 */
+}
+
+#game-display {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 200px; /* 可依畫面調整 */
+    position: relative;
+}
+
+.player-buttons {
+    display: flex;
+    gap: 30px;
+}
+
+.player-buttons img {
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s, transform 0.8s;
+}
+
+/* 彩屑和素材掉落共用樣式 */
+.falling-item {
+    position: fixed;
+    pointer-events: none;
+    top: -50px;
+    opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -110,8 +206,7 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    if(noClickCount===1) emojiDisplay.textContent='🥺';
-    else emojiDisplay.textContent='🥹';
+    emojiDisplay.textContent = noClickCount===1 ? '🥺' : '🥹';
 });
 
 // 點擊很樂意
@@ -168,37 +263,55 @@ playerButtons.forEach(btn=>{
 
         // 玩家勝利掉落素材 + 彩屑
         if(result==='Win'){
-            const fallingItems=['c.png','ch.png','pp.png'];
-            const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f72585','#7209b7'];
+            const fallingItems=['c.png','ch.png','pp.png']; // 素材
+            const confettiColors=['#ffe0e0','#fff5e6','#fff8dc','#e0f7fa','#d6f5d6','#eaf6ff','#fef6e4']; // 彩屑淡色系
 
-            for(let i=0;i<60;i++){ // 數量更多
-                // 素材圖片
-                const item=document.createElement('img');
-                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                item.src=file;
-                item.className='falling-item';
-                item.style.left=Math.random()*100+'vw';
-                const scale=1 + Math.random()*1.0; // 放大尺寸
-                item.style.width=(30*scale)+'px';
-                item.style.height=(30*scale)+'px';
-                item.style.animationDuration=(2 + Math.random()*2)+'s';
-                item.style.transform=`rotate(${Math.random()*360}deg)`;
-                document.body.appendChild(item);
-                setTimeout(()=>{document.body.removeChild(item);},4000);
+            const total = 80; // 總掉落數
+            const confettiCount = 20; // 彩屑少一點
+            const materialCount = total - confettiCount; // 素材多一些
 
-                // 彩屑方塊
-                const confetti=document.createElement('div');
-                confetti.className='falling-item';
-                confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-                const size=12 + Math.random()*18; // 放大彩屑
-                confetti.style.width=size+'px';
-                confetti.style.height=size+'px';
-                confetti.style.left=Math.random()*100+'vw';
-                confetti.style.borderRadius='2px';
-                confetti.style.animationDuration=(2 + Math.random()*2)+'s';
-                confetti.style.transform=`rotate(${Math.random()*360}deg)`;
-                document.body.appendChild(confetti);
-                setTimeout(()=>{document.body.removeChild(confetti);},4000);
+            function createFallingElement(srcOrColor, isImg){
+                const el = isImg ? document.createElement('img') : document.createElement('div');
+                if(isImg) el.src=srcOrColor;
+                else { el.style.backgroundColor=srcOrColor; el.style.borderRadius='2px'; }
+                el.className='falling-item';
+                const size = 20 + Math.random()*40;
+                el.style.width=size+'px';
+                el.style.height=size+'px';
+                el.style.left=Math.random()*100+'vw';
+                el.style.top='-50px';
+                el.style.position='fixed';
+                el.style.opacity=1;
+                document.body.appendChild(el);
+
+                const duration = 3 + Math.random()*2;
+                const amplitude = 20 + Math.random()*40;
+                const startLeft = parseFloat(el.style.left);
+
+                let start = null;
+                function animate(time){
+                    if(!start) start = time;
+                    const progress = (time - start)/1000;
+                    if(progress<duration){
+                        const y = progress*100;
+                        const x = startLeft + Math.sin(progress*3*Math.random())*amplitude;
+                        el.style.transform = `translate(${x}px, ${y}vh) rotate(${progress*720*Math.random()}deg)`;
+                        requestAnimationFrame(animate);
+                    } else {
+                        document.body.removeChild(el);
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+
+            for(let i=0;i<materialCount;i++){
+                const file = fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                createFallingElement(file,true);
+            }
+
+            for(let i=0;i<confettiCount;i++){
+                const color = confettiColors[Math.floor(Math.random()*confettiColors.length)];
+                createFallingElement(color,false);
             }
         }
     });
