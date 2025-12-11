@@ -117,7 +117,7 @@ body {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    margin: 15px 0; /* 與玩家按鈕間距 */
+    margin: 15px 0;
 }
 
 #game-display {
@@ -125,7 +125,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    height: 200px; /* 可依畫面調整 */
+    height: 200px;
 }
 
 .player-buttons {
@@ -145,8 +145,6 @@ body {
 /* 彩屑掉落 */
 .falling-item {
     position: fixed;
-    width: 20px;
-    height: 20px;
     pointer-events: none;
     top: -50px;
     animation-name: fall;
@@ -204,7 +202,7 @@ const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
-const fallingItems = ['pp.png','ch.png','c.png']; // 素材圖片
+const fallingItems = ['pp.png','ch.png','c.png'];
 let noClickCount = 0;
 
 // 初始淡入
@@ -275,27 +273,30 @@ playerButtons.forEach(btn=>{
         if(result==='Win'){
             computerChoiceImg.src=''; // 隱藏電腦出拳
 
-            for(let i=0;i<40;i++){ // 數量多一些
+            for(let i=0;i<70;i++){ // 增加掉落數量
                 const item=document.createElement('img');
+                let size;
                 // 隨機彩屑或素材圖片
                 if(Math.random()<0.5){
-                    // 彩屑：隨機色彩正方形
+                    // 彩屑
                     item.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
-                    item.style.width='10px';
-                    item.style.height='10px';
+                    size = 10 + Math.random()*15; // 10~25px
+                    item.style.width = size + 'px';
+                    item.style.height = size + 'px';
                 } else {
                     // 素材圖片
                     const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
                     item.src=file;
-                    item.style.width='20px';
-                    item.style.height='20px';
+                    size = 15 + Math.random()*25; // 15~40px
+                    item.style.width = size + 'px';
+                    item.style.height = size + 'px';
                 }
                 item.className='falling-item';
                 item.style.left=Math.random()*100+'vw';
                 item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
                 item.style.transform = `rotate(${Math.random()*360}deg)`;
                 document.body.appendChild(item);
-                setTimeout(()=>{document.body.removeChild(item);},4000);
+                setTimeout(()=>{document.body.removeChild(item);},5000);
             }
         }
     });
