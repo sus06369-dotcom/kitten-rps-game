@@ -28,7 +28,6 @@ body {
     position: relative;
 }
 
-/* 淡入效果 */
 .fade-in {
     opacity: 0;
     transition: opacity 0.8s;
@@ -38,7 +37,6 @@ body {
     opacity: 1;
 }
 
-/* 文字樣式 */
 #intro-text {
     color: #4b0082;
     font-size: 8vw;
@@ -47,20 +45,17 @@ body {
     word-break: keep-all;
 }
 
-/* kitten 容器 */
 #kitten-container {
     position: relative;
     margin-bottom: 3vh;
 }
 
-/* kitten 圖片固定大小 */
 #kitten-img {
     max-width: 220px;
     height: auto;
     margin-bottom: 3vh;
 }
 
-/* 電腦出拳 */
 #computer-choice {
     position: absolute;
     bottom: 0%;
@@ -69,15 +64,15 @@ body {
     z-index: 2;
 }
 
+/* 個別大小設定 */
 #computer-choice.scissors { width: 40%; }
 #computer-choice.rock { width: 50%; }
 #computer-choice.paper { width: 50%; }
 
-/* emoji 蓋在 kitten 臉 */
 #emoji-display {
     font-size: 45vw; 
     position: absolute;
-    top: 50%;
+    top: 52%;
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -85,12 +80,10 @@ body {
     z-index: 5;
 }
 
-/* 選擇按鈕 */
-.choice-buttons {
+.choice-buttons, .player-buttons {
     display: flex;
     gap: 30px;
     margin-bottom: 3vh;
-    min-height: 60px; /* 保留空間避免推動 kitten */
 }
 
 .choice-buttons button {
@@ -108,32 +101,25 @@ body {
 #yes-btn { background-color: #6ca0dc; color: #fff; }
 #no-btn { background-color: #e58b8b; color: #fff; }
 
-/* 準備文字容器，固定高度避免推動 kitten */
-#status-text, #hint-text {
+#status-text {
     color: #4b0082;
+    font-size: 6vw;
     font-weight: bold;
-    min-height: 8vw; /* 保留高度 */
     margin-bottom: 0.5vh;
 }
 
-#status-text { font-size: 6vw; }
-#hint-text { font-size: 5vw; margin-bottom: 3vh; }
+#hint-text {
+    color: #4b0082;
+    font-size: 5vw;
+    margin-bottom: 3vh;
+}
 
-/* 結果文字容器固定高度，避免按鈕跳動 */
 #result {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
     min-height: 8vw;
     margin-bottom: 10px;
-}
-
-/* 玩家出拳按鈕 */
-.player-buttons {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 3vh;
-    min-height: 80px; /* 保留位置 */
 }
 
 .player-buttons img {
@@ -207,22 +193,10 @@ yesBtn.addEventListener('click',()=>{
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
 
-    // 顯示準備文字
-    setTimeout(()=>{
-        statusText.style.visibility='visible';
-        statusText.classList.add('visible');
-    }, 200);
-
-    setTimeout(()=>{
-        hintText.style.visibility='visible';
-        hintText.classList.add('visible');
-    }, 1000);
-
-    // 玩家出拳按鈕淡入
-    setTimeout(()=>{
-        playerBtnContainer.style.visibility='visible';
-        playerBtnContainer.classList.add('visible');
-    }, 1800);
+    // 顯示準備文字和玩家按鈕
+    setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
+    setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
+    setTimeout(()=>{playerBtnContainer.style.visibility='visible'; playerBtnContainer.classList.add('visible');},1800);
 });
 
 // 玩家出拳
@@ -237,6 +211,10 @@ playerButtons.forEach(btn=>{
         if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
         else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
         else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
+
+        // 隱藏準備文字，但保留空位
+        statusText.style.visibility='hidden';
+        hintText.style.visibility='hidden';
 
         // 判定勝負
         let result = '';
@@ -254,7 +232,6 @@ playerButtons.forEach(btn=>{
             else if(computerChoiceFile==='paper2.png') result='平手';
         }
 
-        // 顯示結果文字
         resultDiv.textContent = result;
     });
 });
