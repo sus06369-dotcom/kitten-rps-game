@@ -64,7 +64,6 @@ body {
     z-index: 2;
 }
 
-/* 個別大小設定 */
 #computer-choice.scissors { width: 40%; }
 #computer-choice.rock { width: 50%; }
 #computer-choice.paper { width: 50%; }
@@ -126,6 +125,9 @@ body {
     width: 70px;
     height: 70px;
     cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s, transform 0.8s;
 }
 </style>
 </head>
@@ -188,15 +190,24 @@ noBtn.addEventListener('click',()=>{
 
 // 點擊很樂意
 yesBtn.addEventListener('click',()=>{
-    // 隱藏初始文字和按鈕
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
 
-    // 顯示準備文字和玩家按鈕
+    // 顯示準備文字
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
-    setTimeout(()=>{playerBtnContainer.style.visibility='visible'; playerBtnContainer.classList.add('visible');},1800);
+
+    // 顯示玩家按鈕（固定位置，依序淡入 r → g → b）
+    setTimeout(()=>{
+        playerBtnContainer.style.visibility='visible';
+        playerButtons.forEach((btn, i)=>{
+            setTimeout(()=>{
+                btn.style.opacity='1';
+                btn.style.transform='translateY(0)';
+            }, i*400); // 左→右依序淡入，每個間隔0.4秒
+        });
+    }, 1800);
 });
 
 // 玩家出拳
@@ -206,17 +217,16 @@ playerButtons.forEach(btn=>{
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
         computerChoiceImg.src = computerChoiceFile;
 
-        // 設定對應 class 控制大小
         computerChoiceImg.className = '';
         if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
         else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
         else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
-        // 隱藏準備文字，但保留空位
-        statusText.style.visibility='hidden';
-        hintText.style.visibility='hidden';
+        // 文字消失，不保留空白
+        statusText.style.display='none';
+        hintText.style.display='none';
 
-        // 判定勝負
+        // 判定勝負並顯示在原先文字位置
         let result = '';
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='平手';
