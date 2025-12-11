@@ -28,121 +28,35 @@ body {
     position: relative;
 }
 
-.fade-in {
-    opacity: 0;
-    transition: opacity 0.8s;
-}
+.fade-in { opacity: 0; transition: opacity 0.8s; }
+.visible { opacity: 1; }
 
-.visible {
-    opacity: 1;
-}
+#intro-text { color: #4b0082; font-size: 8vw; font-weight: bold; margin-bottom: 3vh; word-break: keep-all; }
+#kitten-container { position: relative; margin-bottom: 3vh; }
+#kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 
-#intro-text {
-    color: #4b0082;
-    font-size: 8vw;
-    font-weight: bold;
-    margin-bottom: 3vh;
-    word-break: keep-all;
-}
-
-#kitten-container {
-    position: relative;
-    margin-bottom: 3vh;
-}
-
-#kitten-img {
-    max-width: 220px;
-    height: auto;
-    margin-bottom: 3vh;
-}
-
-#computer-choice {
-    position: absolute;
-    bottom: 0%;
-    left: 0%;
-    height: auto;
-    z-index: 2;
-}
-
+#computer-choice { position: absolute; bottom: 0%; left: 0%; height: auto; z-index: 2; }
 #computer-choice.scissors { width: 40%; }
 #computer-choice.rock { width: 50%; }
 #computer-choice.paper { width: 50%; }
 
-#emoji-display {
-    font-size: 45vw; 
-    position: absolute;
-    top: 52%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    line-height: 1;
-    z-index: 5;
-}
+#emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
-.choice-buttons {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 3vh;
-}
-
-.choice-buttons button {
-    padding: 12px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
+.choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
+.choice-buttons button { padding: 12px 30px; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
 .choice-buttons button:hover { transform: scale(1.05); }
-
 #yes-btn { background-color: #6ca0dc; color: #fff; }
 #no-btn { background-color: #e58b8b; color: #fff; }
 
-#status-text {
-    color: #4b0082;
-    font-size: 6vw;
-    font-weight: bold;
-    margin-bottom: 0.5vh;
-}
+#status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
+#hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
 
-#hint-text {
-    color: #4b0082;
-    font-size: 5vw;
-    margin-bottom: 3vh;
-}
+#result { font-size: 8vw; font-weight: bold; color: #4b0082; margin: 15px 0; }
+#game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
+.player-buttons { display: flex; gap: 30px; }
+.player-buttons img { width: 70px; height: 70px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
 
-#result {
-    font-size: 8vw;
-    font-weight: bold;
-    color: #4b0082;
-    margin: 15px 0;
-}
-
-#game-display {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    height: 200px;
-}
-
-.player-buttons {
-    display: flex;
-    gap: 30px;
-}
-
-.player-buttons img {
-    width: 70px;
-    height: 70px;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s, transform 0.8s;
-}
-
-/* 彩屑掉落 */
+/* 彩屑/素材掉落樣式 */
 .falling-item {
     position: fixed;
     pointer-events: none;
@@ -151,10 +65,9 @@ body {
     animation-timing-function: ease-in;
     animation-fill-mode: forwards;
 }
-
 @keyframes fall {
     0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 </style>
 </head>
@@ -202,7 +115,6 @@ const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
-const fallingItems = ['pp.png','ch.png','c.png'];
 let noClickCount = 0;
 
 // 初始淡入
@@ -213,8 +125,7 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    if(noClickCount===1) emojiDisplay.textContent='🥺';
-    else emojiDisplay.textContent='🥹';
+    emojiDisplay.textContent = noClickCount===1 ? '🥺' : '🥹';
 });
 
 // 點擊很樂意
@@ -229,10 +140,7 @@ yesBtn.addEventListener('click',()=>{
     setTimeout(()=>{
         playerBtnContainer.style.visibility='visible';
         playerButtons.forEach((btn, i)=>{
-            setTimeout(()=>{
-                btn.style.opacity = '1';
-                btn.style.transform = 'translateY(0)';
-            },i*400);
+            setTimeout(()=>{ btn.style.opacity='1'; btn.style.transform='translateY(0)'; }, i*400);
         });
     },1800);
 });
@@ -269,34 +177,23 @@ playerButtons.forEach(btn=>{
 
         resultDiv.textContent = result;
 
-        // 玩家勝利彩屑＋素材圖片掉落
+        // 玩家勝利彩屑＋素材灑落
         if(result==='Win'){
-            computerChoiceImg.src=''; // 隱藏電腦出拳
+            const fallingItems = ['c.png','ch.png','pp.png'];
 
-            for(let i=0;i<70;i++){ // 增加掉落數量
-                const item=document.createElement('img');
-                let size;
-                // 隨機彩屑或素材圖片
-                if(Math.random()<0.5){
-                    // 彩屑
-                    item.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
-                    size = 10 + Math.random()*15; // 10~25px
-                    item.style.width = size + 'px';
-                    item.style.height = size + 'px';
-                } else {
-                    // 素材圖片
-                    const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                    item.src=file;
-                    size = 15 + Math.random()*25; // 15~40px
-                    item.style.width = size + 'px';
-                    item.style.height = size + 'px';
-                }
-                item.className='falling-item';
-                item.style.left=Math.random()*100+'vw';
-                item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
+            for(let i=0;i<40;i++){ // 增加數量
+                const item = document.createElement('img');
+                const file = fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                item.src = file;
+                item.className = 'falling-item';
+                item.style.left = Math.random()*100 + 'vw';
+                const scale = 0.8 + Math.random()*0.7; // 隨機大小，偏大
+                item.style.width = (30*scale)+'px';
+                item.style.height = (30*scale)+'px';
+                item.style.animationDuration = (2 + Math.random()*2)+'s';
                 item.style.transform = `rotate(${Math.random()*360}deg)`;
                 document.body.appendChild(item);
-                setTimeout(()=>{document.body.removeChild(item);},5000);
+                setTimeout(()=>{document.body.removeChild(item);},4000);
             }
         }
     });
