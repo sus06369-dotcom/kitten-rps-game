@@ -113,24 +113,24 @@ body {
     margin-bottom: 3vh;
 }
 
+/* 結果文字固定位置 */
 #result {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    margin: 15px 0; /* 與玩家按鈕間距 */
+    position: absolute;
+    top: calc(100% + 20px); /* 小貓圖下方 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    white-space: nowrap;
 }
 
-#game-display {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-}
-
+/* 玩家按鈕 */
 .player-buttons {
     display: flex;
     gap: 30px;
+    margin-top: 180px; /* 讓按鈕在結果文字下方固定 */
 }
 
 .player-buttons img {
@@ -142,16 +142,17 @@ body {
     transition: opacity 0.8s, transform 0.8s;
 }
 
-/* 彩屑掉落 */
+/* 彩屑樣式 */
 .falling-item {
     position: fixed;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     pointer-events: none;
     top: -50px;
     animation-name: fall;
     animation-timing-function: ease-in;
     animation-fill-mode: forwards;
+    border-radius: 2px;
 }
 
 @keyframes fall {
@@ -179,7 +180,7 @@ body {
     <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
     <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
 
-    <div id="game-display">
+    <div id="game-display" style="position: relative; width: 100%; height: 250px;">
         <div id="result"></div>
         <div class="player-buttons" id="player-buttons">
             <img src="r.png" alt="剪刀" data-choice="r">
@@ -201,9 +202,9 @@ const playerButtons = document.querySelectorAll('#player-buttons img');
 const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
-const emojiDisplay = document.getElementById('emoji-display');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
+const fallingItemsImages = ['pp.png','ch.png','c.png'];
 let noClickCount = 0;
 
 // 初始淡入
@@ -222,7 +223,6 @@ noBtn.addEventListener('click',()=>{
 yesBtn.addEventListener('click',()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
-    emojiDisplay.textContent='';
 
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
@@ -270,20 +270,30 @@ playerButtons.forEach(btn=>{
 
         resultDiv.textContent = result;
 
-        // 玩家勝利時彩屑掉落
+        // 玩家勝利效果
         if(result==='Win'){
-            computerChoiceImg.src=''; // 消失電腦出拳
-            const fallingItems=['c.png','ch.png','pp.png'];
-            for(let i=0;i<20;i++){
-                const item=document.createElement('img');
-                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                item.src=file;
-                item.className='falling-item';
-                item.style.left=Math.random()*100+'vw';
-                item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
-                item.style.transform = `rotate(${Math.random()*360}deg)`; // 隨機角度
+            computerChoiceImg.src=''; // 隱藏電腦出拳
+
+            // 彩屑 + 素材圖片掉落
+            for(let i=0;i<25;i++){
+                const item = document.createElement('div');
+                const isImage = Math.random() < 0.4; // 40% 機率用素材圖，其餘彩屑
+                if(isImage){
+                    const img = document.createElement('img');
+                    img.src = fallingItemsImages[Math.floor(Math.random()*fallingItemsImages.length)];
+                    img.className='falling-item';
+                    item.appendChild(img);
+                } else {
+                    item.className='falling-item';
+                    item.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
+                }
+                item.style.left = Math.random()*100+'vw';
+                item.style.width = 20+Math.random()*15+'px';
+                item.style.height = 20+Math.random()*15+'px';
+                item.style.animationDuration = (1.5+Math.random()*2)+'s';
+                item.style.transform = `rotate(${Math.random()*360}deg)`;
                 document.body.appendChild(item);
-                setTimeout(()=>{document.body.removeChild(item);},3000);
+                setTimeout(()=>{document.body.removeChild(item);},4000);
             }
         }
     });
