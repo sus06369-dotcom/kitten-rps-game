@@ -117,18 +117,20 @@ body {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    min-height: 1em;
-    margin: 15px 0;
+    margin: 0;
+}
+
+#game-display {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between; /* 小貓與按鈕間垂直均分 */
     align-items: center;
-    height: 60px; /* 調整結果文字區塊高度，讓上下間距均分 */
+    height: 200px; /* 可依畫面調整 */
 }
 
 .player-buttons {
     display: flex;
     gap: 30px;
-    margin-bottom: 3vh;
 }
 
 .player-buttons img {
@@ -159,12 +161,14 @@ body {
     <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
     <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
 
-    <div id="result"></div>
-
-    <div class="player-buttons" id="player-buttons" style="visibility:hidden;">
-        <img src="r.png" alt="剪刀" data-choice="r">
-        <img src="g.png" alt="石頭" data-choice="g">
-        <img src="b.png" alt="布" data-choice="b">
+    <!-- 新增容器，垂直均分結果文字與玩家按鈕 -->
+    <div id="game-display">
+        <div id="result"></div>
+        <div class="player-buttons" id="player-buttons">
+            <img src="r.png" alt="剪刀" data-choice="r">
+            <img src="g.png" alt="石頭" data-choice="g">
+            <img src="b.png" alt="布" data-choice="b">
+        </div>
     </div>
 </div>
 
@@ -252,7 +256,7 @@ playerButtons.forEach(btn=>{
             else if(computerChoiceFile==='paper2.png') result='平手';
         }
 
-        // 顯示結果，位置固定
+        // 顯示結果，按鈕位置固定
         resultDiv.textContent = result;
     });
 });
