@@ -30,11 +30,12 @@ body {
 
 .fade-in {
     opacity: 0;
-    transition: opacity 0.8s;
+    transition: opacity 0.8s, transform 0.8s;
 }
 
 .visible {
     opacity: 1;
+    transform: translateY(0);
 }
 
 #intro-text {
@@ -80,7 +81,7 @@ body {
     z-index: 5;
 }
 
-.choice-buttons, .player-buttons {
+.choice-buttons {
     display: flex;
     gap: 30px;
     margin-bottom: 3vh;
@@ -105,23 +106,28 @@ body {
     color: #4b0082;
     font-size: 6vw;
     font-weight: bold;
-    margin-bottom: 0.5vh;
-    min-height: 7vw; /* 保留空位 */
+    margin-bottom: 1vh;
 }
 
 #hint-text {
     color: #4b0082;
     font-size: 5vw;
     margin-bottom: 3vh;
-    min-height: 6vw; /* 保留空位 */
 }
 
 #result {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
+    margin: 3vh 0;
     min-height: 8vw;
-    margin-bottom: 10px;
+}
+
+.player-buttons {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 3vh;
+    position: relative;
 }
 
 .player-buttons img {
@@ -144,15 +150,17 @@ body {
         <div id="emoji-display"></div>
     </div>
 
-    <div class="choice-buttons fade-in" id="choice-btns" style="visibility:hidden;">
+    <div class="choice-buttons" id="choice-btns" style="visibility:hidden;">
         <button id="yes-btn">很樂意</button>
         <button id="no-btn">不樂意</button>
     </div>
 
-    <div id="status-text" class="fade-in" style="visibility:hidden;"></div>
-    <div id="hint-text" class="fade-in" style="visibility:hidden;"></div>
+    <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
+    <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
 
-    <div id="player-buttons" class="player-buttons"></div>
+    <div id="result"></div>
+
+    <div class="player-buttons" id="player-buttons"></div>
 </div>
 
 <script>
@@ -165,6 +173,7 @@ const statusText = document.getElementById('status-text');
 const hintText = document.getElementById('hint-text');
 const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
+const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
@@ -178,7 +187,6 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    emojiDisplay.style.fontSize='45vw';
     if(noClickCount===1) emojiDisplay.textContent='🥺';
     else emojiDisplay.textContent='🥹';
 });
@@ -191,42 +199,55 @@ yesBtn.addEventListener('click',()=>{
     emojiDisplay.textContent='';
 
     // 顯示準備文字
-    setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible'); statusText.textContent='準備好了嗎？';},200);
-    setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible'); hintText.textContent='好了就點擊出拳吧';},1000);
+    setTimeout(()=>{
+        statusText.style.visibility='visible';
+        statusText.classList.add('visible');
+    },200);
+    setTimeout(()=>{
+        hintText.style.visibility='visible';
+        hintText.classList.add('visible');
+    },1000);
 
-    // 創建玩家按鈕並淡入
+    // 建立玩家出拳按鈕
     const playerChoices = [
         {src:'r.png', choice:'r'},
         {src:'g.png', choice:'g'},
         {src:'b.png', choice:'b'}
     ];
-    playerBtnContainer.innerHTML = '';
+
     playerChoices.forEach((btnData,index)=>{
         const btn = document.createElement('img');
         btn.src = btnData.src;
-        btn.setAttribute('data-choice',btnData.choice);
-        btn.style.transition='opacity 0.8s, transform 0.8s';
-        btn.style.transform='translateY(30px)';
-        btn.style.opacity='0';
+        btn.setAttribute('data-choice', btnData.choice);
+        btn.style.transition = 'opacity 0.8s, transform 0.8s';
+        btn.style.transform = 'translateY(30px)';
+        btn.style.opacity = '0';
         playerBtnContainer.appendChild(btn);
 
+        // 淡入從下而上，左→右
         setTimeout(()=>{
             btn.style.opacity='1';
             btn.style.transform='translateY(0)';
         }, index*400);
 
         // 玩家出拳事件
-        btn.addEventListener('click',()=>{
+        btn.addEventListener('click', ()=>{
             const playerChoice = btn.getAttribute('data-choice');
             const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
             computerChoiceImg.src = computerChoiceFile;
-            computerChoiceImg.className='';
+
+            // 設定對應 class 控制大小
+            computerChoiceImg.className = '';
             if(computerChoiceFile==='scissors2.png') computerChoiceImg.classList.add('scissors');
             else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
             else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
+            // 隱藏文字
+            statusText.style.display='none';
+            hintText.style.display='none';
+
             // 判定勝負
-            let result='';
+            let result = '';
             if(playerChoice==='r'){
                 if(computerChoiceFile==='scissors2.png') result='平手';
                 else if(computerChoiceFile==='rock2.png') result='玩家輸';
@@ -241,12 +262,10 @@ yesBtn.addEventListener('click',()=>{
                 else if(computerChoiceFile==='paper2.png') result='平手';
             }
 
-            // 顯示結果在空位上
-            statusText.textContent = result;
+            resultDiv.textContent = result;
         });
     });
 });
 </script>
-
 </body>
 </html>
