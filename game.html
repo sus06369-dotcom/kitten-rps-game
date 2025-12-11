@@ -30,12 +30,11 @@ body {
 
 .fade-in {
     opacity: 0;
-    transition: opacity 0.8s, transform 0.8s;
+    transition: opacity 0.8s;
 }
 
 .visible {
     opacity: 1;
-    transform: translateY(0);
 }
 
 #intro-text {
@@ -65,13 +64,12 @@ body {
     z-index: 2;
 }
 
-/* 個別大小設定 */
 #computer-choice.scissors { width: 40%; }
-#computer-choice.rock { width: 50%; }
-#computer-choice.paper { width: 60%; }   /* ← 已放大 */
+#computer-choice.rock { width: 55%; }
+#computer-choice.paper { width: 55%; }
 
 #emoji-display {
-    font-size: 45vw; 
+    font-size: 50vw; 
     position: absolute;
     top: 52%;
     left: 50%;
@@ -120,22 +118,16 @@ body {
     font-weight: bold;
     color: #4b0082;
     min-height: 8vw;
-    margin-bottom: 35px;   /* ← 與按鈕增加間距 */
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* 玩家按鈕初始：往下偏移等待動畫 */
 .player-buttons img {
     width: 70px;
     height: 70px;
     cursor: pointer;
-    transform: translateY(25px);   /* ← 從下往上淡入 */
-    opacity: 0;
-    transition: opacity 0.8s, transform 0.8s;
-}
-
-.player-buttons img.visible {
-    opacity: 1;
-    transform: translateY(0);
 }
 </style>
 </head>
@@ -160,7 +152,7 @@ body {
 
     <div id="result"></div>
 
-    <div class="player-buttons" id="player-buttons" style="visibility:hidden;">
+    <div class="player-buttons fade-in" id="player-buttons" style="visibility:hidden;">
         <img src="r.png" alt="剪刀" data-choice="r">
         <img src="g.png" alt="石頭" data-choice="g">
         <img src="b.png" alt="布" data-choice="b">
@@ -192,7 +184,8 @@ setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add(
 // 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    emojiDisplay.textContent = noClickCount === 1 ? '🥺' : '🥹';
+    if(noClickCount===1) emojiDisplay.textContent='🥺';
+    else emojiDisplay.textContent='🥹';
 });
 
 // 點擊很樂意
@@ -204,14 +197,13 @@ yesBtn.addEventListener('click',()=>{
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
 
-    // 玩家按鈕依序淡入（r → g → b）
+    // 玩家按鈕淡入從下往上、左→右
     setTimeout(()=>{
         playerBtnContainer.style.visibility='visible';
-        playerButtons[0].classList.add('visible');
-    },1700);
-
-    setTimeout(()=>{ playerButtons[1].classList.add('visible'); },1950);
-    setTimeout(()=>{ playerButtons[2].classList.add('visible'); },2200);
+        playerButtons.forEach((btn,i)=>{
+            setTimeout(()=>{btn.classList.add('visible');}, i*800);
+        });
+    },1800);
 });
 
 // 玩家出拳
@@ -226,9 +218,11 @@ playerButtons.forEach(btn=>{
         else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
         else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
+        // 隱藏準備文字，但保留空位
         statusText.style.visibility='hidden';
         hintText.style.visibility='hidden';
 
+        // 判定勝負
         let result = '';
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='平手';
@@ -250,4 +244,5 @@ playerButtons.forEach(btn=>{
 </script>
 
 </body>
-</html>F
+</html>
+                                                        
