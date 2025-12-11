@@ -117,15 +117,16 @@ body {
     font-size: 8vw;
     font-weight: bold;
     color: #4b0082;
-    margin: 0;
+    margin: 15px 0; /* 與玩家按鈕間距 */
 }
 
 #game-display {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 小貓與按鈕間垂直均分 */
+    justify-content: space-between;
     align-items: center;
     height: 200px; /* 可依畫面調整 */
+    position: relative;
 }
 
 .player-buttons {
@@ -139,6 +140,44 @@ body {
     cursor: pointer;
     opacity: 0;
     transform: translateY(20px);
+    transition: opacity 0.8s, transform 0.8s;
+}
+
+/* 勝利Candy圖樣式 */
+#victory-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.candy-close, .candy {
+    position: absolute;
+    left: 50%;
+    bottom: 50px;
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+    transition: opacity 0.8s, transform 0.8s;
+    max-width: 100px;
+}
+
+/* 彩屑掉落 */
+.falling-item {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    pointer-events: none;
+    top: -50px;
+    animation-name: fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 </style>
 </head>
@@ -161,7 +200,6 @@ body {
     <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
     <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
 
-    <!-- 新增容器，垂直均分結果文字與玩家按鈕 -->
     <div id="game-display">
         <div id="result"></div>
         <div class="player-buttons" id="player-buttons">
@@ -169,6 +207,7 @@ body {
             <img src="g.png" alt="石頭" data-choice="g">
             <img src="b.png" alt="布" data-choice="b">
         </div>
+        <div id="victory-container"></div>
     </div>
 </div>
 
@@ -185,6 +224,7 @@ const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
+const victoryContainer = document.getElementById('victory-container');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
@@ -207,21 +247,18 @@ yesBtn.addEventListener('click',()=>{
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
 
-    // 顯示準備文字
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
 
-    // 玩家按鈕淡入，從下往上，左→右
     setTimeout(()=>{
         playerBtnContainer.style.visibility='visible';
         playerButtons.forEach((btn, i)=>{
             setTimeout(()=>{
-                btn.style.transition = 'opacity 0.8s, transform 0.8s';
                 btn.style.opacity = '1';
                 btn.style.transform = 'translateY(0)';
-            }, i * 400);
+            }, i*400);
         });
-    }, 1800);
+    },1800);
 });
 
 // 玩家出拳
@@ -236,11 +273,9 @@ playerButtons.forEach(btn=>{
         else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
         else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
-        // 隱藏準備文字
         statusText.style.visibility='hidden';
         hintText.style.visibility='hidden';
 
-        // 判定勝負
         let result = '';
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='Draw';
@@ -256,8 +291,53 @@ playerButtons.forEach(btn=>{
             else if(computerChoiceFile==='paper2.png') result='Draw';
         }
 
-        // 顯示結果，按鈕位置固定
         resultDiv.textContent = result;
+
+        // 玩家勝利動畫
+        if(result==='Win'){
+            computerChoiceImg.src = ''; // 消失電腦出拳
+
+            // Candy close
+            const candyClose = document.createElement('img');
+            candyClose.src='candy_close.png';
+            candyClose.className='candy-close';
+            victoryContainer.appendChild(candyClose);
+
+            setTimeout(()=>{
+                candyClose.style.opacity='1';
+                candyClose.style.transform='translateX(-50%) scale(1)';
+            },100);
+
+            // Candy
+            const candy = document.createElement('img');
+            candy.src='candy.png';
+            candy.className='candy';
+            victoryContainer.appendChild(candy);
+
+            setTimeout(()=>{
+                candy.style.opacity='1';
+                candy.style.transform='translateX(-50%) scale(1.2)';
+            },600);
+
+            // 彩屑掉落
+            const fallingItems=['c.png','ch.png','pp.png'];
+            for(let i=0;i<20;i++){
+                const item=document.createElement('img');
+                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                item.src=file;
+                item.className='falling-item';
+                item.style.left=Math.random()*100+'vw';
+                item.style.animationDuration=(1.5+Math.random()*1.5)+'s';
+                document.body.appendChild(item);
+                setTimeout(()=>{document.body.removeChild(item);},3000);
+            }
+
+            // 移除 Candy 圖
+            setTimeout(()=>{
+                if(candyClose) victoryContainer.removeChild(candyClose);
+                if(candy) victoryContainer.removeChild(candy);
+            },2500);
+        }
     });
 });
 </script>
