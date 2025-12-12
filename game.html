@@ -34,15 +34,25 @@ body {
 #intro-text { color: #4b0082; font-size: 8vw; font-weight: bold; margin-bottom: 3vh; word-break: keep-all; }
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
+
 #computer-choice {
     position: absolute;
-    bottom: 10px;
-    left: -30px;
-    width: 130px;
+    bottom: 20px;      /* 靠近kitten左下 */
+    left: 50px;        /* 與kitten保持距離 */
+    width: 140px;      /* 可以調整大小 */
     height: auto;
     z-index: 2;
-    transition: none;
+    transition: none;  /* 不要動畫 */
 }
+
+#dialogue-text {
+    color: #4b0082;
+    font-size: 5vw;
+    font-weight: bold;
+    margin-bottom: 20px; /* 與kitten有間距 */
+    min-height: 6vw;
+}
+
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
@@ -54,20 +64,6 @@ body {
 #status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
 #hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
 #result { margin: 15px 0; }
-
-/* 修改後台詞CSS，不限制寬度、不固定兩行，保持與貓咪圖片間距 */
-#dialogue-text {
-    color: #4b0082;
-    font-size: 5vw;
-    font-weight: bold;
-    margin-bottom: 20px;
-    min-height: 6vw;
-    text-align: center;
-    position: relative;
-    z-index: 3;
-    white-space: normal;
-    word-break: normal;
-}
 
 #game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
 .player-buttons { display: flex; gap: 30px; }
@@ -86,9 +82,10 @@ body {
     <div id="kitten-container">
         <div id="dialogue-text"></div>
         <img src="kitten.png" id="kitten-img" class="fade-in">
-        <img src="" id="computer-choice" alt="">
         <div id="emoji-display"></div>
     </div>
+
+    <img src="" id="computer-choice" alt=""> <!-- 電腦出拳移到kitten-container外面 -->
 
     <div class="choice-buttons fade-in" id="choice-btns" style="visibility:hidden;">
         <button id="yes-btn">很樂意</button>
@@ -130,13 +127,13 @@ let winCount = 0;
 let loseCount = 0;
 let drawCount = 0;
 
-// 小貓台詞資料
+// 小貓台詞
 const dialogue = {
     'Win': {
-        1: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次咪一定贏！😡","咪今天狀態不好而已…再玩一局嘛？😫"],
-        2: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，咪要專心起來了！😤"],
-        4: ["好吧……這次算你贏，給咪等著，咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，咪要雪恥！😠","喂！！你是不是偷學咪拳法！☹️"],
-        5: ["怎麼回事…咪的貓咪直覺失靈了嗎？！😨","不行！不行！咪一定要翻盤！😡","對不起，咪錯了…再給咪一次機會喵……🥹","……（沉默）咪累了……😭"]
+        1:["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次咪一定贏！😡","咪今天狀態不好而已…再玩一局嘛？😫"],
+        2:["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，咪要專心起來了！😤"],
+        4:["好吧……這次算你贏，給咪等著，咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，咪要雪恥！😠","喂！！你是不是偷學咪拳法！☹️"],
+        5:["怎麼回事…咪的貓咪直覺失靈了嗎？！😨","不行！不行！咪一定要翻盤！😡","對不起，咪錯了…再給咪一次機會喵……🥹","……（沉默）咪累了……😭"]
     },
     'Lose': {
         1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
@@ -194,8 +191,6 @@ playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
-        
-        // 固定電腦出拳位置，只改 src
         computerChoiceImg.src = computerChoiceFile;
 
         if(firstClick){
@@ -232,19 +227,24 @@ playerButtons.forEach(btn=>{
             else if(winCount<4) dialogueList=dialogue['Win'][2];
             else if(winCount<5) dialogueList=dialogue['Win'][4];
             else dialogueList=dialogue['Win'][5];
-            winCount++; loseCount=0; drawCount=0;
+            winCount++;
+            loseCount=0;
+            drawCount=0;
         } else if(result==='Lose'){
             if(loseCount<2) dialogueList=dialogue['Lose'][1];
             else if(loseCount<4) dialogueList=dialogue['Lose'][2];
             else if(loseCount<5) dialogueList=dialogue['Lose'][4];
             else dialogueList=dialogue['Lose'][5];
-            loseCount++; winCount=0; drawCount=0;
+            loseCount++;
+            winCount=0;
+            drawCount=0;
         } else if(result==='Draw'){
             if(drawCount<2) dialogueList=dialogue['Draw'][1];
             else dialogueList=dialogue['Draw'][2];
             drawCount++;
         }
 
+        // 隨機選一句台詞顯示
         const dialogueTextToShow = dialogueList[Math.floor(Math.random()*dialogueList.length)];
         showDialogue(dialogueTextToShow);
 
