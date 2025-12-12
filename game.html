@@ -35,33 +35,22 @@ body {
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 #computer-choice { position: absolute; bottom: 0%; left: 0%; height: auto; z-index: 2; }
-#computer-choice.scissors { width: 40%; } #computer-choice.rock { width: 50%; } #computer-choice.paper { width: 50%; }
+#computer-choice.scissors { width: 40%; } 
+#computer-choice.rock { width: 50%; } 
+#computer-choice.paper { width: 50%; }
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
-
-/* 台詞文字顯示 */
-#line-text {
-    position: absolute;
-    top: -60px; /* 在kitten.png上方 */
-    width: 100%;
-    font-size: 5vw;
-    color: #4b0082;
-    font-weight: bold;
-    min-height: 6vw;
-    white-space: nowrap;
-    overflow: hidden;
-    text-align: center;
-    pointer-events: none;
-    z-index: 10;
-}
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
 .choice-buttons button { padding: 12px 30px; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
 .choice-buttons button:hover { transform: scale(1.05); }
-#yes-btn { background-color: #6ca0dc; color: #fff; } #no-btn { background-color: #e58b8b; color: #fff; }
+#yes-btn { background-color: #6ca0dc; color: #fff; } 
+#no-btn { background-color: #e58b8b; color: #fff; }
 
 #status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
 #hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
-#result { font-size: 8vw; font-weight: bold; color: #4b0082; margin: 15px 0; }
+#result { margin: 15px 0; }
+
+#dialogue-text { color: #4b0082; font-size: 5vw; font-weight: bold; margin-bottom: 1vh; min-height: 6vw; }
 
 #game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
 .player-buttons { display: flex; gap: 30px; }
@@ -78,9 +67,9 @@ body {
     <div id="intro-text" class="fade-in">嘿，能和小貓猜個拳嗎？</div>
     
     <div id="kitten-container">
+        <div id="dialogue-text"></div>
         <img src="kitten.png" id="kitten-img" class="fade-in">
         <img src="" id="computer-choice" alt="">
-        <div id="line-text"></div>
         <div id="emoji-display"></div>
     </div>
 
@@ -114,85 +103,35 @@ const playerButtons = document.querySelectorAll('#player-buttons img');
 const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
+const dialogueText = document.getElementById('dialogue-text');
 const emojiDisplay = document.getElementById('emoji-display');
-const lineText = document.getElementById('line-text');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
+let firstClick = true; // 用於淡出準備好了嗎？
+let winCount = 0;
+let loseCount = 0;
+let drawCount = 0;
 
-// 玩家台詞設定
-const lines = {
-    win: {
-        normal: [
-            "…咪只是大意了！下局才不會輸給你呢！😖",
-            "才、才不是讓你啦！再來一次咪一定贏！😡",
-            "咪今天狀態不好而已…再玩一局嘛？😫"
-        ],
-        small: [
-            "欸？僥倖而已啦！僥倖！🤯",
-            "喂喂…你認真了喔？😧",
-            "咦？連勝？不行，咪要專心起來了！😤"
-        ],
-        big: [
-            "好吧……這次算你贏，給咪等著，咪會復仇的！！😬",
-            "可惡…咪明明有預判的說……😨",
-            "欸？你怎麼這麼厲害… 不行，咪要雪恥！😠",
-            "喂！！你是不是偷學貓咪拳法！☹️"
-        ],
-        super: [
-            "怎麼回事…咪的貓咪直覺失靈了嗎？！😨",
-            "不行！不行！咪一定要翻盤！😡",
-            "對不起，咪錯了…再給咪一次機會喵……🥹",
-            "……（沉默）咪累了……😭"
-        ]
+// 小貓台詞
+const dialogue = {
+    'Win': { // 玩家勝利
+        1: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次本咪一定贏！😡","本咪今天狀態不好而已…再玩一局嘛？😫"],
+        2: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，本咪要專心起來了！😤"],
+        4: ["好吧……這次算你贏，給本咪等著，本咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，本咪要雪恥！😠","喂！！你是不是偷學貓咪拳法！☹️"],
+        5: ["怎麼回事…本咪的貓咪直覺失靈了嗎？！😨","不行！不行！本咪一定要翻盤！😡","對不起，本咪錯了…再給本咪一次機會咪……🥹","……（沉默）本咪累了……😭"]
     },
-    lose: {
-        normal: [
-            "咪贏了！要再來一局嗎？😝",
-            "欸？你是不是出得有點慢？🫢",
-            "你下局能贏咪嘛？😏",
-            "嘿嘿，被咪抓到了吧～🤪"
-        ],
-        small: [
-            "連贏兩局～咪今天說不定很強？😳",
-            "嘿～你該不會被咪看穿了吧？😏",
-            "欸？又贏了？你的套路好像有點明顯哦～🫣",
-            "欸？兩連敗？！要不要休息一下再來？🤨",
-            "又輸？你今天狀態是不是不太行哦😗"
-        ],
-        big: [
-            "哎呀～你這樣下去會被咪一直贏喔～🫣",
-            "咪是不是該收斂一下實力呢？（才不會）🤭",
-            "是不是該承認咪是猜拳天才🤩",
-            "咪都不好意思贏太多了🤪"
-        ],
-        super: [
-            "五連勝～咪今天是神喵吧！😼",
-            "你是不是該換個策略了？看起來沒用喵～😏",
-            "咪已經準備好六連勝了，你呢～🤩",
-            "這已經不是猜拳，是實力的差距喵～🫣",
-            "喵哈哈，又贏了！你還敢挑戰咪嗎？😝"
-        ]
+    'Lose': { // 玩家失敗
+        1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
+        2:["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],
+        4:["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],
+        5:["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用咪～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
     },
-    draw: {
-        normal: [
-            "喵？平手？！那…再來一次！😛",
-            "你是不是偷看咪想出什麼？🫤",
-            "哼，這次算你運氣好…再比一次！😖",
-            "平局～那就再戰一局！😵‍💫",
-            "？！下局咪必贏😠"
-        ],
-        multi: [
-            "又平手？！你也太難纏了喵～😵‍💫",
-            "欸？怎麼老是平手啊…😳",
-            "平手又平手…這樣咪要生氣了！😤",
-            "咦？你是不是偷偷猜到咪的套路？😵",
-            "咪有點受挫…不行，再來！😖"
-        ]
+    'Draw': {
+        1:["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局本咪必贏😠"],
+        2:["又平手？！你也太難纏了咪～😵‍💫","欸？怎麼老是平手啊…😳","平手又平手…這樣咪要生氣了！😤","咦？你是不是偷偷猜到咪的套路？😵","咪有點受挫…不行，再來！😖"]
     }
 };
-
-let firstClickDone = false;
 
 // 初始淡入
 setTimeout(()=>{introText.classList.add('visible');}, 200);
@@ -226,40 +165,20 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-// 逐字顯示文字
-function showLine(line) {
-    lineText.textContent = '';
-    let index = 0;
+// 顯示台詞一個字一個字
+function showDialogue(text){
+    dialogueText.textContent = '';
+    let i=0;
     const interval = setInterval(()=>{
-        if(index<line.length){
-            lineText.textContent += line[index];
-            index++;
-        } else clearInterval(interval);
+        dialogueText.textContent += text.charAt(i);
+        i++;
+        if(i>=text.length) clearInterval(interval);
     },50);
 }
-
-// 計算勝負等級
-function getLevel(count){
-    if(count>=5) return 'super';
-    if(count===4) return 'big';
-    if(count>=2) return 'small';
-    return 'normal';
-}
-
-let playerWinCount = 0;
-let playerLoseCount = 0;
-let drawCount = 0;
 
 // 玩家出拳
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
-        // 第一次出拳隱藏「準備好了嗎？」與「好了就點擊出拳吧」
-        if(!firstClickDone){
-            statusText.style.display = 'none';
-            hintText.style.display = 'none';
-            firstClickDone = true;
-        }
-
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
         computerChoiceImg.src = computerChoiceFile;
@@ -269,6 +188,14 @@ playerButtons.forEach(btn=>{
         else if(computerChoiceFile==='rock2.png') computerChoiceImg.classList.add('rock');
         else if(computerChoiceFile==='paper2.png') computerChoiceImg.classList.add('paper');
 
+        // 第一次點擊淡出準備好了嗎？
+        if(firstClick){
+            statusText.style.display='none';
+            hintText.style.display='none';
+            firstClick=false;
+        }
+
+        // 判斷結果
         let result = '';
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='Draw';
@@ -284,25 +211,38 @@ playerButtons.forEach(btn=>{
             else if(computerChoiceFile==='paper2.png') result='Draw';
         }
 
-        resultDiv.textContent = result;
+        // 顯示勝負結果圖片
+        if(result==='Win') resultDiv.innerHTML = `<img src="Victory.png" style="max-width:150px;">`;
+        else if(result==='Lose') resultDiv.innerHTML = `<img src="Defeat.png" style="max-width:150px;">`;
+        else if(result==='Draw') resultDiv.innerHTML = `<img src="Draw.png" style="max-width:150px;">`;
 
-        // 更新勝負統計
-        if(result==='Win') playerWinCount++;
-        else if(result==='Lose') playerLoseCount++;
-        else drawCount++;
-
-        // 選擇台詞
-        let lineToShow = '';
+        // 顯示隨機台詞
+        let dialogueList;
         if(result==='Win'){
-            lineToShow = lines.win[getLevel(playerWinCount)][Math.floor(Math.random()*lines.win[getLevel(playerWinCount)].length)];
+            if(winCount<2) dialogueList=dialogue['Win'][1];
+            else if(winCount<4) dialogueList=dialogue['Win'][2];
+            else if(winCount<5) dialogueList=dialogue['Win'][4];
+            else dialogueList=dialogue['Win'][5];
+            winCount++;
+            loseCount=0;
+            drawCount=0;
         } else if(result==='Lose'){
-            lineToShow = lines.lose[getLevel(playerLoseCount)][Math.floor(Math.random()*lines.lose[getLevel(playerLoseCount)].length)];
+            if(loseCount<2) dialogueList=dialogue['Lose'][1];
+            else if(loseCount<4) dialogueList=dialogue['Lose'][2];
+            else if(loseCount<5) dialogueList=dialogue['Lose'][4];
+            else dialogueList=dialogue['Lose'][5];
+            loseCount++;
+            winCount=0;
+            drawCount=0;
         } else if(result==='Draw'){
-            if(drawCount>=2) lineToShow = lines.draw.multi[Math.floor(Math.random()*lines.draw.multi.length)];
-            else lineToShow = lines.draw.normal[Math.floor(Math.random()*lines.draw.normal.length)];
+            if(drawCount<2) dialogueList=dialogue['Draw'][1];
+            else dialogueList=dialogue['Draw'][2];
+            drawCount++;
         }
 
-        showLine(lineToShow);
+        // 隨機選一句台詞顯示
+        const dialogueTextToShow = dialogueList[Math.floor(Math.random()*dialogueList.length)];
+        showDialogue(dialogueTextToShow);
 
         // 玩家勝利掉落素材 + 彩屑
         if(result==='Win'){
@@ -337,6 +277,7 @@ playerButtons.forEach(btn=>{
                 setTimeout(()=>{document.body.removeChild(confetti);},4000);
             }
         }
+
     });
 });
 </script>
