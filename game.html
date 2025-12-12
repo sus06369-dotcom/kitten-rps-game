@@ -34,7 +34,14 @@ body {
 #intro-text { color: #4b0082; font-size: 8vw; font-weight: bold; margin-bottom: 3vh; word-break: keep-all; }
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
-#computer-choice { position: absolute; bottom: 0; left: -25px; height: auto; z-index: 2; }
+#computer-choice {
+    position: absolute;
+    bottom: 20px;       /* 距離容器底部 */
+    left: 30px;         /* 靠近小貓左邊 */
+    height: 70px;       /* 固定高度 */
+    width: auto;        /* 自動寬度保持比例 */
+    z-index: 3;         /* 蓋在小貓上 */
+}
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
@@ -110,39 +117,21 @@ let winCount = 0;
 let loseCount = 0;
 let drawCount = 0;
 
-// 小貓台詞
 const dialogue = {
-    'Win': {
-        1: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次本咪一定贏！😡","本咪今天狀態不好而已…再玩一局嘛？😫"],
-        2: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，本咪要專心起來了！😤"],
-        4: ["好吧……這次算你贏，給本咪等著，本咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，本咪要雪恥！😠","喂！！你是不是偷學貓咪拳法！☹️"],
-        5: ["怎麼回事…本咪的貓咪直覺失靈了嗎？！😨","不行！不行！本咪一定要翻盤！😡","對不起，本咪錯了…再給本咪一次機會咪……🥹","……（沉默）本咪累了……😭"]
-    },
-    'Lose': {
-        1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
-        2:["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],
-        4:["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],
-        5:["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用咪～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
-    },
-    'Draw': {
-        1:["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局本咪必贏😠"],
-        2:["又平手？！你也太難纏了咪～😵‍💫","欸？怎麼老是平手啊…😳","平手又平手…這樣咪要生氣了！😤","咦？你是不是偷偷猜到咪的套路？😵","咪有點受挫…不行，再來！😖"]
-    }
+    'Win': {1: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次本咪一定贏！😡","本咪今天狀態不好而已…再玩一局嘛？😫"],2: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，本咪要專心起來了！😤"],4: ["好吧……這次算你贏，給本咪等著，本咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，本咪要雪恥！😠","喂！！你是不是偷學貓咪拳法！☹️"],5: ["怎麼回事…本咪的貓咪直覺失靈了嗎？！😨","不行！不行！本咪一定要翻盤！😡","對不起，本咪錯了…再給本咪一次機會咪……🥹","……（沉默）本咪累了……😭"]},
+    'Lose': {1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],2:["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],4:["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],5:["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用咪～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]},
+    'Draw': {1:["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局本咪必勝😠"],2:["又平手？！你也太難纏了咪～😵‍💫","欸？怎麼老是平手啊…😳","平手又平手…這樣咪要生氣了！😤","咦？你是不是偷偷猜到咪的套路？😵","咪有點受挫…不行，再來！😖"]}
 };
 
-// 初始淡入
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
 
-// 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    if(noClickCount===1) emojiDisplay.textContent='🥺';
-    else emojiDisplay.textContent='🥹';
+    emojiDisplay.textContent = noClickCount === 1 ? '🥺' : '🥹';
 });
 
-// 點擊很樂意
 yesBtn.addEventListener('click',()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
@@ -162,7 +151,6 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-// 顯示台詞一個字一個字
 function showDialogue(text){
     dialogueText.textContent = '';
     let i=0;
@@ -173,15 +161,12 @@ function showDialogue(text){
     },50);
 }
 
-// 玩家出拳
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
-
-        // 電腦出拳圖片恢復原本呈現方式
         computerChoiceImg.src = computerChoiceFile;
-        computerChoiceImg.className = ''; // 保持原本 CSS，不放大不平移
+        computerChoiceImg.className = ''; // 取消所有 class
 
         if(firstClick){
             statusText.style.display='none';
@@ -204,47 +189,31 @@ playerButtons.forEach(btn=>{
             else if(computerChoiceFile==='paper2.png') result='Draw';
         }
 
-        // 顯示勝負結果圖片
         if(result==='Win') resultDiv.innerHTML = `<img src="Victory.png" style="max-width:150px;">`;
         else if(result==='Lose') resultDiv.innerHTML = `<img src="Defeat.png" style="max-width:150px;">`;
         else if(result==='Draw') resultDiv.innerHTML = `<img src="Draw.png" style="max-width:150px;">`;
 
-        // 顯示隨機台詞
         let dialogueList;
         if(result==='Win'){
-            if(winCount<2) dialogueList=dialogue['Win'][1];
-            else if(winCount<4) dialogueList=dialogue['Win'][2];
-            else if(winCount<5) dialogueList=dialogue['Win'][4];
-            else dialogueList=dialogue['Win'][5];
-            winCount++;
-            loseCount=0;
-            drawCount=0;
+            dialogueList = winCount<2 ? dialogue['Win'][1] : winCount<4 ? dialogue['Win'][2] : winCount<5 ? dialogue['Win'][4] : dialogue['Win'][5];
+            winCount++; loseCount=0; drawCount=0;
         } else if(result==='Lose'){
-            if(loseCount<2) dialogueList=dialogue['Lose'][1];
-            else if(loseCount<4) dialogueList=dialogue['Lose'][2];
-            else if(loseCount<5) dialogueList=dialogue['Lose'][4];
-            else dialogueList=dialogue['Lose'][5];
-            loseCount++;
-            winCount=0;
-            drawCount=0;
+            dialogueList = loseCount<2 ? dialogue['Lose'][1] : loseCount<4 ? dialogue['Lose'][2] : loseCount<5 ? dialogue['Lose'][4] : dialogue['Lose'][5];
+            loseCount++; winCount=0; drawCount=0;
         } else if(result==='Draw'){
-            if(drawCount<2) dialogueList=dialogue['Draw'][1];
-            else dialogueList=dialogue['Draw'][2];
+            dialogueList = drawCount<2 ? dialogue['Draw'][1] : dialogue['Draw'][2];
             drawCount++;
         }
 
         const dialogueTextToShow = dialogueList[Math.floor(Math.random()*dialogueList.length)];
         showDialogue(dialogueTextToShow);
 
-              // 玩家勝利掉落素材 + 彩屑
         if(result==='Win'){
             const fallingItems=['c.png','ch.png','pp.png'];
             const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f72585','#7209b7'];
-
             for(let i=0;i<60;i++){
                 const item=document.createElement('img');
-                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
-                item.src=file;
+                item.src=fallingItems[Math.floor(Math.random()*fallingItems.length)];
                 item.className='falling-item';
                 item.style.left=Math.random()*100+'vw';
                 const scale=1 + Math.random()*1.0;
@@ -269,7 +238,6 @@ playerButtons.forEach(btn=>{
                 setTimeout(()=>{document.body.removeChild(confetti);},4000);
             }
         }
-
     });
 });
 </script>
