@@ -37,6 +37,7 @@ body {
 
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 
+/* 電腦出拳固定位置 */
 #computer-choice {
     position: absolute;
     bottom: 10px;   /* 貓咪左下 */
@@ -47,21 +48,25 @@ body {
     transition: none; /* 避免平移動畫 */
 }
 
+/* 台詞：在貓咪上方，距離約 20px */
 #dialogue-text {
     position: absolute;
-    bottom: 140px;      /* 出現在 kitten 上方，留間距 */
+    top: -20px;      /* 台詞在 kitten 上方，距離約 20px（負值代表上方）*/
     left: 50%;
     transform: translateX(-50%);
     color: #4b0082;
     font-size: 4.5vw;
     font-weight: bold;
     text-align: center;
-    max-width: 180px;   /* 限制文字寬度，最多兩行 */
+    max-width: 180px;   /* 限制寬度，最多兩行 */
     line-height: 1.2;
     z-index: 3;
     word-break: break-word;
+    pointer-events: none;
+    white-space: normal;
 }
 
+/* 其餘樣式保留 */
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
@@ -78,8 +83,8 @@ body {
 .player-buttons { display: flex; gap: 30px; }
 .player-buttons img { width: 70px; height: 70px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
 
-/* 彩屑和素材掉落樣式 */
-.falling-item { position: fixed; pointer-events: none; top: -50px; animation-name: fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
+/* 彩屑和素材掉落樣式：加上 z-index 確保在最上層 */
+.falling-item { position: fixed; pointer-events: none; top: -50px; animation-name: fall; animation-timing-function: ease-in; animation-fill-mode: forwards; z-index: 20; }
 @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(360deg); opacity:0; } }
 </style>
 </head>
@@ -114,6 +119,7 @@ body {
 </div>
 
 <script>
+/* 先取得元素（與你現有程式碼相同） */
 const introText = document.getElementById('intro-text');
 const kittenImg = document.getElementById('kitten-img');
 const choiceBtns = document.getElementById('choice-btns');
@@ -131,25 +137,134 @@ const emojiDisplay = document.getElementById('emoji-display');
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 let firstClick = true;
-let winCount = 0;
-let loseCount = 0;
-let drawCount = 0;
 
-// 小貓台詞
-const dialogue = { /* 保留原本台詞資料 */ };
+/* ---------------------------
+   你給的完整台詞池（精確保留 emoji 與文字）
+   結構：lose = 玩家贏（小貓輸）， win = 小貓贏（玩家輸）， draw = 平手
+   --------------------------- */
+const catDialogues = {
+    // 玩家贏 -> 小貓 "lose"（程式使用 result==='Win' 表示玩家勝利）
+    lose: {
+        1: ["…咪只是大意了！下局才不會輸給你呢！😖",
+            "才、才不是讓你啦！再來一次咪一定贏！😡",
+            "咪今天狀態不好而已…再玩一局嘛？😫"],
+        2: ["欸？僥倖而已啦！僥倖！🤯",
+            "喂喂…你認真了喔？😧",
+            "咦？連勝？不行，咪要專心起來了！😤"],
+        4: ["好吧……這次算你贏，給咪等著，咪會復仇的！！😬",
+            "可惡…我明明有預判的說……😨",
+            "欸？你怎麼這麼厲害… 不行，咪要雪恥！😠",
+            "喂！！你是不是偷學咪拳法！☹️"],
+        5: ["怎麼回事…咪的貓咪直覺失靈了嗎？！😨",
+            "不行！不行！咪一定要翻盤！😡",
+            "對不起，咪錯了…再給咪一次機會喵……🥹",
+            "……（沉默）咪累了……😭"]
+    },
 
-// 初始淡入
+    // 小貓贏 -> 玩家輸 -> 稱為 win（程式使用 result==='Lose' 表示玩家輸）
+    win: {
+        1: ["咪贏了！要再來一局嗎？😝",
+            "欸？你是不是出得有點慢？🫢",
+            "你下局能贏咪嘛？😏",
+            "嘿嘿，被咪抓到了吧～🤪"],
+        2: ["連贏兩局～咪今天說不定很強？😳",
+            "嘿～你該不會被咪看穿了吧？😏",
+            "欸？又贏了？你的套路好像有點明顯哦～🫣",
+            "欸？兩連敗？！要不要休息一下再來？🤨",
+            "又輸？你今天狀態是不是不太行哦😗"],
+        4: ["哎呀～你這樣下去會被咪一直贏喔～🫣",
+            "咪是不是該收斂一下實力呢？（才不會）🤭",
+            "是不是該承認咪是猜拳天才🤩",
+            "咪都不好意思贏太多了🤪"],
+        5: ["五連勝～咪今天是神咪吧！😼",
+            "你是不是該換個策略了？看起來沒用喵～😏",
+            "咪已經準備好六連勝了，你呢～🤩",
+            "這已經不是猜拳，是實力的差距咪～🫣",
+            "喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
+    },
+
+    // 平手
+    draw: {
+        normal: ["喵？平手？！那…再來一次！😛",
+                 "你是不是偷看咪想出什麼？🫤",
+                 "哼，這次算你運氣好…再比一次！😖",
+                 "平局～那就再戰一局！😵‍💫",
+                 "？！下局咪必贏😠"],
+        streak: ["又平手？！你也太難纏了咪～😵‍💫",
+                 "欸？怎麼老是平手啊…😳",
+                 "平手又平手…這樣咪要生氣了！😤",
+                 "咦？你是不是偷偷猜到咪的套路？😵",
+                 "咪有點受挫…不行，再來！😖"]
+    }
+};
+
+/* 連勝/連敗/平手計數 */
+let winStreak = 0;   // 玩家連勝
+let loseStreak = 0;  // 玩家連敗
+let drawStreak = 0;  // 連續平手
+
+/* 逐字顯示控制（清除上次 interval） */
+let typingInterval = null;
+function showDialogue(text){
+    // 清掉舊的 interval（如果有）
+    if(typingInterval) clearInterval(typingInterval);
+    dialogueText.textContent = '';
+    let i = 0;
+    typingInterval = setInterval(()=>{
+        dialogueText.textContent += text.charAt(i);
+        i++;
+        if(i >= text.length){
+            clearInterval(typingInterval);
+            typingInterval = null;
+        }
+    }, 40); // 每個字 40ms，速度可調
+}
+
+/* 選一句合適的台詞（含連勝 / 連敗 / 連平處理） */
+function pickDialogue(result){
+    let list;
+    if(result === 'Win'){ // 玩家贏 -> 用 catDialogues.lose
+        winStreak++;
+        loseStreak = 0;
+        drawStreak = 0;
+
+        if(winStreak >= 5) list = catDialogues.lose[5];
+        else if(winStreak === 4) list = catDialogues.lose[4];
+        else if(winStreak >= 2) list = catDialogues.lose[2];
+        else list = catDialogues.lose[1];
+
+    } else if(result === 'Lose'){ // 玩家輸 -> 用 catDialogues.win (小貓贏)
+        loseStreak++;
+        winStreak = 0;
+        drawStreak = 0;
+
+        if(loseStreak >= 5) list = catDialogues.win[5];
+        else if(loseStreak === 4) list = catDialogues.win[4];
+        else if(loseStreak >= 2) list = catDialogues.win[2];
+        else list = catDialogues.win[1];
+
+    } else { // Draw
+        drawStreak++;
+        winStreak = 0;
+        loseStreak = 0;
+
+        if(drawStreak >= 2) list = catDialogues.draw.streak;
+        else list = catDialogues.draw.normal;
+    }
+
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+/* ---------- 保留既有的初始淡入與按鈕顯示邏輯 ---------- */
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
 
-// 點擊不樂意
 noBtn.addEventListener('click',()=>{
     noClickCount++;
     emojiDisplay.textContent = noClickCount===1 ? '🥺' : '🥹';
 });
 
-// 點擊很樂意
 yesBtn.addEventListener('click',()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
@@ -166,64 +281,55 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-// 顯示台詞
-function showDialogue(text){
-    dialogueText.textContent = '';
-    let i=0;
-    const interval = setInterval(()=>{
-        dialogueText.textContent += text.charAt(i);
-        i++;
-        if(i>=text.length) clearInterval(interval);
-    },50);
-}
-
-// 玩家出拳
+/* ---------- 玩家出拳主流程（保留你原本的勝負判定與特效） ---------- */
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
         
-        // 只改 src，保持位置固定
+        // **只改 src，不改 className 或 position**（確保不會移動）
         computerChoiceImg.src = computerChoiceFile;
 
+        // 第一次點擊隱藏提示
         if(firstClick){
             statusText.style.display='none';
             hintText.style.display='none';
             firstClick=false;
         }
 
-        // 判斷勝負
+               // 判斷勝負（跟你原始邏輯一致）
         let result = '';
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='Draw';
             else if(computerChoiceFile==='rock2.png') result='Lose';
-            else if(computerChoiceFile==='paper2.png') result='Win';
+            else result='Win';
         } else if(playerChoice==='g'){
             if(computerChoiceFile==='scissors2.png') result='Win';
             else if(computerChoiceFile==='rock2.png') result='Draw';
-            else if(computerChoiceFile==='paper2.png') result='Lose';
+            else result='Lose';
         } else if(playerChoice==='b'){
             if(computerChoiceFile==='scissors2.png') result='Lose';
             else if(computerChoiceFile==='rock2.png') result='Win';
-            else if(computerChoiceFile==='paper2.png') result='Draw';
+            else result='Draw';
         }
 
-        // 顯示勝負結果圖片
+        // 顯示勝負結果圖片（保持原設計）
         if(result==='Win') resultDiv.innerHTML = `<img src="Victory.png" style="max-width:150px;">`;
         else if(result==='Lose') resultDiv.innerHTML = `<img src="Defeat.png" style="max-width:150px;">`;
         else if(result==='Draw') resultDiv.innerHTML = `<img src="Draw.png" style="max-width:150px;">`;
 
-        // 顯示隨機台詞（保持原本邏輯）
-        // ...
+        // 從台詞池挑一句並顯示（逐字）
+        const line = pickDialogue(result);
+        showDialogue(line);
 
-        // 玩家勝利掉落素材 + 彩屑
+        // 玩家勝利掉落素材 + 彩屑（保留原本機制）
         if(result==='Win'){
             const fallingItems=['c.png','ch.png','pp.png'];
             const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f72585','#7209b7'];
-
             for(let i=0;i<60;i++){
                 const item=document.createElement('img');
-                item.src=fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
+                item.src=file;
                 item.className='falling-item';
                 item.style.left=Math.random()*100+'vw';
                 const scale=1+Math.random()*1.0;
@@ -248,7 +354,6 @@ playerButtons.forEach(btn=>{
                 setTimeout(()=>{document.body.removeChild(confetti);},4000);
             }
         }
-
     });
 });
 </script>
