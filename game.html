@@ -32,11 +32,12 @@ body {
 .visible { opacity: 1; }
 
 #intro-text { color: #4b0082; font-size: 8vw; font-weight: bold; margin-bottom: 3vh; word-break: keep-all; }
+
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 #computer-choice {
     position: absolute;
-    bottom: 10px;   /* 調整貓咪左下 */
+    bottom: 10px;   /* 在貓咪左下角 */
     left: -30px;    /* 微調位置 */
     width: 130px;   /* 固定大小 */
     height: auto;
@@ -44,6 +45,21 @@ body {
     transition: none; /* 避免動畫或平移 */
 }
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
+
+#dialogue-text {
+    position: absolute;
+    bottom: 120px; /* 在 kitten 上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #4b0082;
+    font-size: 4.5vw;
+    font-weight: bold;
+    text-align: center;
+    max-width: 180px;
+    line-height: 1.2;
+    z-index: 3;
+    word-break: break-word;
+}
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
 .choice-buttons button { padding: 12px 30px; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
@@ -54,7 +70,6 @@ body {
 #status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
 #hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
 #result { margin: 15px 0; }
-#dialogue-text { color: #4b0082; font-size: 5vw; font-weight: bold; margin-bottom: 1vh; min-height: 6vw; }
 
 #game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
 .player-buttons { display: flex; gap: 30px; }
@@ -118,7 +133,11 @@ let loseCount = 0;
 let drawCount = 0;
 
 // 小貓台詞
-const dialogue = { /* 保留原本台詞資料 */ };
+const dialogue = {
+    'Win': { 1:["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次本咪一定贏！😡","本咪今天狀態不好而已…再玩一局嘛？😫"] },
+    'Lose': { 1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"] },
+    'Draw': { 1:["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫"] }
+};
 
 // 初始淡入
 setTimeout(()=>{introText.classList.add('visible');}, 200);
@@ -148,7 +167,7 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-// 顯示台詞
+// 顯示台詞函數
 function showDialogue(text){
     dialogueText.textContent = '';
     let i=0;
@@ -164,8 +183,6 @@ playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
-        
-        // **只改 src，不改 className**
         computerChoiceImg.src = computerChoiceFile;
 
         if(firstClick){
@@ -179,30 +196,31 @@ playerButtons.forEach(btn=>{
         if(playerChoice==='r'){
             if(computerChoiceFile==='scissors2.png') result='Draw';
             else if(computerChoiceFile==='rock2.png') result='Lose';
-            else if(computerChoiceFile==='paper2.png') result='Win';
+            else result='Win';
         } else if(playerChoice==='g'){
             if(computerChoiceFile==='scissors2.png') result='Win';
             else if(computerChoiceFile==='rock2.png') result='Draw';
-            else if(computerChoiceFile==='paper2.png') result='Lose';
+            else result='Lose';
         } else if(playerChoice==='b'){
             if(computerChoiceFile==='scissors2.png') result='Lose';
             else if(computerChoiceFile==='rock2.png') result='Win';
-            else if(computerChoiceFile==='paper2.png') result='Draw';
+            else result='Draw';
         }
 
-        // 顯示勝負結果圖片
+        // 顯示勝負圖片
         if(result==='Win') resultDiv.innerHTML = `<img src="Victory.png" style="max-width:150px;">`;
         else if(result==='Lose') resultDiv.innerHTML = `<img src="Defeat.png" style="max-width:150px;">`;
         else if(result==='Draw') resultDiv.innerHTML = `<img src="Draw.png" style="max-width:150px;">`;
 
-        // 顯示隨機台詞（保留原本邏輯）
-        // ... 這裡保持原本隨機台詞代碼 ...
+        // 顯示台詞
+        const dialogueList = dialogue[result][1];
+        const dialogueTextToShow = dialogueList[Math.floor(Math.random()*dialogueList.length)];
+        showDialogue(dialogueTextToShow);
 
         // 玩家勝利掉落素材 + 彩屑
         if(result==='Win'){
             const fallingItems=['c.png','ch.png','pp.png'];
             const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f72585','#7209b7'];
-
             for(let i=0;i<60;i++){
                 const item=document.createElement('img');
                 item.src=fallingItems[Math.floor(Math.random()*fallingItems.length)];
@@ -230,7 +248,6 @@ playerButtons.forEach(btn=>{
                 setTimeout(()=>{document.body.removeChild(confetti);},4000);
             }
         }
-
     });
 });
 </script>
