@@ -35,22 +35,22 @@ body {
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 
-#computer-choice {
-    position: absolute;
-    bottom: 20px;      /* 靠近kitten左下 */
-    left: 50px;        /* 與kitten保持距離 */
-    width: 140px;      /* 可以調整大小 */
-    height: auto;
-    z-index: 2;
-    transition: none;  /* 不要動畫 */
-}
-
 #dialogue-text {
     color: #4b0082;
     font-size: 5vw;
     font-weight: bold;
-    margin-bottom: 20px; /* 與kitten有間距 */
-    min-height: 6vw;
+    margin-bottom: 20px; /* 與貓咪圖間距 */
+    height: 6vw;          /* 固定高度，避免電腦出拳跑動 */
+    overflow: hidden;     /* 超出文字隱藏 */
+}
+
+#computer-choice {
+    position: absolute;
+    bottom: 10px;   /* 調整貓咪左下 */
+    left: -30px;    /* 微調位置 */
+    width: 130px;   /* 固定大小 */
+    height: auto;
+    z-index: 2;
 }
 
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
@@ -82,10 +82,9 @@ body {
     <div id="kitten-container">
         <div id="dialogue-text"></div>
         <img src="kitten.png" id="kitten-img" class="fade-in">
+        <img src="" id="computer-choice" alt="">
         <div id="emoji-display"></div>
     </div>
-
-    <img src="" id="computer-choice" alt=""> <!-- 電腦出拳移到kitten-container外面 -->
 
     <div class="choice-buttons fade-in" id="choice-btns" style="visibility:hidden;">
         <button id="yes-btn">很樂意</button>
@@ -139,7 +138,7 @@ const dialogue = {
         1:["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
         2:["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],
         4:["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],
-        5:["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用咪～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
+        5:["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用喵～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
     },
     'Draw': {
         1:["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局咪必贏😠"],
@@ -244,7 +243,6 @@ playerButtons.forEach(btn=>{
             drawCount++;
         }
 
-        // 隨機選一句台詞顯示
         const dialogueTextToShow = dialogueList[Math.floor(Math.random()*dialogueList.length)];
         showDialogue(dialogueTextToShow);
 
