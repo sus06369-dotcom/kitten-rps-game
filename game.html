@@ -46,6 +46,7 @@ body {
 #status-text { color: #4b0082; font-size: 6vw; font-weight: bold; margin-bottom: 0.5vh; }
 #hint-text { color: #4b0082; font-size: 5vw; margin-bottom: 3vh; }
 #result { font-size: 8vw; font-weight: bold; color: #4b0082; margin: 15px 0; }
+#dialogue-text { color:#4b0082; font-size:5vw; font-weight:bold; margin-bottom:10px; }
 
 #game-display { display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 200px; position: relative; }
 .player-buttons { display: flex; gap: 30px; }
@@ -72,10 +73,11 @@ body {
         <button id="no-btn">不樂意</button>
     </div>
 
-    <div id="status-text" class="fade-in" style="visibility:hidden;"></div>
+    <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
     <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
 
     <div id="game-display">
+        <div id="dialogue-text"></div>
         <div id="result"></div>
         <div class="player-buttons" id="player-buttons">
             <img src="r.png" alt="剪刀" data-choice="r">
@@ -86,7 +88,6 @@ body {
 </div>
 
 <script>
-// ====================== 原始變數 ======================
 const introText = document.getElementById('intro-text');
 const kittenImg = document.getElementById('kitten-img');
 const choiceBtns = document.getElementById('choice-btns');
@@ -99,76 +100,62 @@ const playerBtnContainer = document.getElementById('player-buttons');
 const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
 const emojiDisplay = document.getElementById('emoji-display');
+const dialogueDiv = document.getElementById('dialogue-text');
+
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 
-// ====================== 台詞清單 ======================
-const dialogues = {
-    kittenWin: {
-        normal: ["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
-        smallWin: ["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],
-        bigWin: ["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],
-        ultraWin: ["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用喵～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
-    },
-    playerWin: {
-        normal: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次咪一定贏！😡","咪今天狀態不好而已…再玩一局嘛？😫"],
-        smallWin: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，咪要專心起來了！😤"],
-        bigWin: ["好吧……這次算你贏，給咪等著，咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，咪要雪恥！😠","喂！！你是不是偷學咪拳法！☹️"],
-        ultraWin: ["怎麼回事…咪的貓咪直覺失靈了嗎？！😨","不行！不行！咪一定要翻盤！😡","對不起，咪錯了…再給咪一次機會喵……🥹","……（沉默）咪累了……😭"]
-    },
-    draw: {
-        normal: ["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局咪必贏😠"],
-        consecutive: ["又平手？！你也太難纏了咪～😵‍💫","欸？怎麼老是平手啊…😳","平手又平手…這樣咪要生氣了！😤","咦？你是不是偷偷猜到咪的套路？😵","咪有點受挫…不行，再來！😖"]
-    }
-};
+// 台詞陣列
+const playerWinDialogue = [
+  "…咪只是大意了！下局才不會輸給你呢！😖",
+  "才、才不是讓你啦！再來一次咪一定贏！😡",
+  "咪今天狀態不好而已…再玩一局嘛？😫",
+  "欸？僥倖而已啦！僥倖！🤯",
+  "喂喂…你認真了喔？😧",
+  "咦？連勝？不行，咪要專心起來了！😤",
+  "好吧……這次算你贏，給咪等著，咪會復仇的！！😬",
+  "可惡…咪明明有預判的說……😨",
+  "欸？你怎麼這麼厲害… 不行，咪要雪恥！😠",
+  "喂！！你是不是偷學貓咪拳法！☹️",
+  "怎麼回事…咪的貓咪直覺失靈了嗎？！😨",
+  "不行！不行！咪一定要翻盤！😡",
+  "對不起，咪錯了…再給咪一次機會喵……🥹",
+  "……（沉默）咪累了……😭"
+];
 
-// ====================== 逐字顯示函數 ======================
-let dialogueInterval;
-function showDialogue(text){
-    clearInterval(dialogueInterval);
-    statusText.style.color = '#4b0082';
-    statusText.textContent = '';
-    let i = 0;
-    dialogueInterval = setInterval(()=>{
-        if(i < text.length){
-            statusText.textContent += text[i];
-            i++;
-        } else {
-            clearInterval(dialogueInterval);
-        }
-    },50); // 每個字50ms
-}
+const catWinDialogue = [
+  "咪贏了！要再來一局嗎？😝",
+  "欸？你是不是出得有點慢？🫢",
+  "你下局能贏咪嘛？😏",
+  "嘿嘿，被咪抓到了吧～🤪",
+  "連贏兩局～咪今天說不定很強？😳",
+  "嘿～你該不會被咪看穿了吧？😏",
+  "欸？又贏了？你的套路好像有點明顯哦～🫣",
+  "欸？兩連敗？！要不要休息一下再來？🤨",
+  "又輸？你今天狀態是不是不太行哦😗",
+  "哎呀～你這樣下去會被咪一直贏喔～🫣",
+  "咪是不是該收斂一下實力呢？（才不會）🤭",
+  "是不是該承認咪是猜拳天才🤩",
+  "咪都不好意思贏太多了🤪",
+  "五連勝～咪今天是神喵吧！😼",
+  "你是不是該換個策略了？看起來沒用喵～😏",
+  "咪已經準備好六連勝了，你呢～🤩",
+  "這已經不是猜拳，是實力的差距喵～🫣",
+  "喵哈哈，又贏了！你還敢挑戰咪嗎？😝"
+];
 
-// 點擊下一局時清除台詞
-function clearDialogue(){
-    clearInterval(dialogueInterval);
-    statusText.textContent = '';
-}
-
-// 取得隨機台詞
-function getRandomDialogue(result, streak){
-    let arr;
-    if(result==='Win'){
-        if(streak>=5) arr = dialogues.playerWin.ultraWin;
-        else if(streak===4) arr = dialogues.playerWin.bigWin;
-        else if(streak>=2) arr = dialogues.playerWin.smallWin;
-        else arr = dialogues.playerWin.normal;
-    } else if(result==='Lose'){
-        if(streak>=5) arr = dialogues.kittenWin.ultraWin;
-        else if(streak===4) arr = dialogues.kittenWin.bigWin;
-        else if(streak>=2) arr = dialogues.kittenWin.smallWin;
-        else arr = dialogues.kittenWin.normal;
-    } else if(result==='Draw'){
-        if(streak>=2) arr = dialogues.draw.consecutive;
-        else arr = dialogues.draw.normal;
-    }
-    return arr[Math.floor(Math.random()*arr.length)];
-}
-
-// ====================== 玩家出拳事件 ======================
-let playerWinStreak = 0;
-let kittenWinStreak = 0;
-let drawStreak = 0;
+const drawDialogue = [
+  "喵？平手？！那…再來一次！😛",
+  "你是不是偷看咪想出什麼？🫤",
+  "哼，這次算你運氣好…再比一次！😖",
+  "平局～那就再戰一局！😵‍💫",
+  "？！下局咪必贏😠",
+  "又平手？！你也太難纏了喵～😵‍💫",
+  "欸？怎麼老是平手啊…😳",
+  "平手又平手…這樣咪要生氣了！😤",
+  "咦？你是不是偷偷猜到咪的套路？😵",
+  "咪有點受挫…不行，再來！😖"
+];
 
 // 初始淡入
 setTimeout(()=>{introText.classList.add('visible');}, 200);
@@ -202,10 +189,26 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
+// 逐字顯示函式
+let dialogueTimeout;
+function showDialogue(text) {
+    clearTimeout(dialogueTimeout);
+    dialogueDiv.textContent = '';
+    let i = 0;
+    function typeChar() {
+        if (i < text.length) {
+            dialogueDiv.textContent += text[i];
+            i++;
+            dialogueTimeout = setTimeout(typeChar, 50);
+        }
+    }
+    typeChar();
+}
+
 // 玩家出拳
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
-        clearDialogue(); // 清除上一局台詞
+        dialogueDiv.textContent = ''; // 清空上一局台詞
 
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
@@ -236,27 +239,27 @@ playerButtons.forEach(btn=>{
 
         resultDiv.textContent = result;
 
-    // 更新連勝計數
-        if(result==='Win'){ playerWinStreak++; kittenWinStreak=0; drawStreak=0; }
-        else if(result==='Lose'){ kittenWinStreak++; playerWinStreak=0; drawStreak=0; }
-        else { drawStreak++; playerWinStreak=0; kittenWinStreak=0; }
+        // 顯示對應結果台詞
+        let dialogueArray = [];
+        if(result==='Win') dialogueArray = playerWinDialogue;
+        else if(result==='Lose') dialogueArray = catWinDialogue;
+        else if(result==='Draw') dialogueArray = drawDialogue;
 
-        // 顯示台詞
-        const dialogue = getRandomDialogue(result, result==='Draw'?drawStreak:(result==='Win'?playerWinStreak:kittenWinStreak));
-        showDialogue(dialogue);
+        const randomDialogue = dialogueArray[Math.floor(Math.random()*dialogueArray.length)];
+        showDialogue(randomDialogue);
 
-        // 玩家勝利掉落素材 + 彩屑
+                // 玩家勝利掉落素材 + 彩屑
         if(result==='Win'){
             const fallingItems=['c.png','ch.png','pp.png'];
             const colors=['#f94144','#f3722c','#f9c74f','#90be6d','#43aa8b','#577590','#f72585','#7209b7'];
 
-            for(let i=0;i<60;i++){ 
+            for(let i=0;i<60;i++){
                 const item=document.createElement('img');
                 const file=fallingItems[Math.floor(Math.random()*fallingItems.length)];
                 item.src=file;
                 item.className='falling-item';
                 item.style.left=Math.random()*100+'vw';
-                const scale=1 + Math.random()*1.0; 
+                const scale=1 + Math.random()*1.0;
                 item.style.width=(30*scale)+'px';
                 item.style.height=(30*scale)+'px';
                 item.style.animationDuration=(2 + Math.random()*2)+'s';
@@ -267,7 +270,7 @@ playerButtons.forEach(btn=>{
                 const confetti=document.createElement('div');
                 confetti.className='falling-item';
                 confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-                const size=12 + Math.random()*18; 
+                const size=12 + Math.random()*18;
                 confetti.style.width=size+'px';
                 confetti.style.height=size+'px';
                 confetti.style.left=Math.random()*100+'vw';
