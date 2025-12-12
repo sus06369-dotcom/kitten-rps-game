@@ -35,9 +35,14 @@ body {
 #kitten-container { position: relative; margin-bottom: 3vh; }
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 #computer-choice { position: absolute; bottom: 0%; left: 0%; height: auto; z-index: 2; }
-#computer-choice.scissors,
-#computer-choice.rock,
-#computer-choice.paper {width: auto;}
+#computer-choice { 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    height: auto; 
+    width: 80px;  /* 固定寬度 */
+    z-index: 2; 
+}
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
