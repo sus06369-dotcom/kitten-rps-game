@@ -37,18 +37,16 @@ body {
 
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 
-/* 電腦出拳固定位置 */
 #computer-choice {
     position: absolute;
-    bottom: 10px;   /* 貓咪左下 */
-    left: -30px;    /* 微調位置 */
-    width: 130px;   /* 固定大小 */
+    bottom: 10px;
+    left: -30px;
+    width: 130px;
     height: auto;
     z-index: 2;
-    transition: none; /* 避免平移動畫 */
+    transition: none;
 }
 
-/* 台詞：在貓咪上方 */
 #dialogue-text {
     position: absolute;
     top: -90px;      
@@ -66,7 +64,6 @@ body {
     white-space: normal;
 }
 
-/* 新增不樂意文字顯示 */
 #no-text {
     color: #4b0082;
     font-size: 18px;
@@ -77,7 +74,6 @@ body {
     transition: opacity 0.8s;
 }
 
-/* 其餘樣式保留 */
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
 .choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
@@ -94,7 +90,6 @@ body {
 .player-buttons { display: flex; gap: 30px; }
 .player-buttons img { width: 70px; height: 70px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
 
-/* 彩屑和素材掉落樣式 */
 .falling-item { position: fixed; pointer-events: none; top: -50px; animation-name: fall; animation-timing-function: ease-in; animation-fill-mode: forwards; z-index: 20; }
 @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(360deg); opacity:0; } }
 </style>
@@ -116,7 +111,6 @@ body {
         <button id="no-btn">不樂意</button>
     </div>
 
-    <!-- 新增顯示不樂意點擊文字 -->
     <div id="no-text"></div>
 
     <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
@@ -152,19 +146,12 @@ const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 let firstClick = true;
 
-/* ---------------------------
-   你原本的完整台詞池
---------------------------- */
-const catDialogues = {
-    /* 這裡放你原本的 catDialogues 物件 */
-};
+const catDialogues = { /* 原 catDialogues 物件 */ };
 
-/* 連勝/連敗/平手計數 */
 let winStreak = 0;   
 let loseStreak = 0;  
 let drawStreak = 0;  
 
-/* 逐字顯示控制 */
 let typingInterval = null;
 function showDialogue(text){
     if(typingInterval) clearInterval(typingInterval);
@@ -180,7 +167,6 @@ function showDialogue(text){
     }, 40);
 }
 
-/* 選一句合適的台詞 */
 function pickDialogue(result){
     let list;
     if(result === 'Win'){ 
@@ -209,38 +195,33 @@ function pickDialogue(result){
     return list[Math.floor(Math.random() * list.length)];
 }
 
-/* ---------- 初始淡入 ---------- */
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
 
-/* 不樂意按鈕 */
-noBtn.addEventListener('click',()=>{
+noBtn.addEventListener('click', ()=>{
     noClickCount++;
-    if(noClickCount === 1) emojiDisplay.textContent='🥺';
-    else if(noClickCount === 2) emojiDisplay.textContent='🥹';
-    
-    // 第3~6次點擊文字淡入
-    if(noClickCount === 3) noText.textContent='你忍心嗎...?'; 
-    else if(noClickCount === 4) noText.textContent='賞個臉跟小貓來一局吧...🥹'; 
-    else if(noClickCount === 5) noText.textContent='……你真的這麼不想陪咪嗎？🥺'; 
-    else if(noClickCount === 6) noText.textContent='好吧…那想玩的時候再來找咪吧...🥹';
-else if(noClickCount >= 7) noText.textContent='人，想玩時咪在這等🥲';
-    
-    // 文字淡入
-    if(noClickCount >= 3){
-        noText.style.opacity='0';
-        void noText.offsetWidth; // 重新觸發 transition
-        noText.style.opacity='1';
+
+    if(noClickCount === 1) emojiDisplay.textContent = '🥺';
+    else if(noClickCount === 2) emojiDisplay.textContent = '🥹';
+    else {
+        if(noClickCount === 3) noText.textContent = '你忍心嗎...?';
+        else if(noClickCount === 4) noText.textContent = '賞個臉跟小貓來一局吧...🥹';
+        else if(noClickCount === 5) noText.textContent = '……你真的這麼不想陪咪嗎？🥺';
+        else if(noClickCount === 6) noText.textContent = '好吧…那想玩的時候再來找咪吧...🥹';
+        else if(noClickCount >= 7) noText.textContent = '人，想玩時咪在這等🥲';
+
+        noText.style.opacity = '0';
+        void noText.offsetWidth;
+        noText.style.opacity = '1';
     }
 });
 
-/* 很樂意按鈕 */
-yesBtn.addEventListener('click',()=>{
+yesBtn.addEventListener('click', ()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
-    noText.style.opacity='0'; // 隱藏不樂意文字
+    noText.style.opacity='0'; // 立即隱藏文字，不淡出
 
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
@@ -252,7 +233,6 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-/* ---------- 玩家出拳主流程 ---------- */
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
