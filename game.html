@@ -37,28 +37,26 @@ body {
 
 #kitten-img { max-width: 220px; height: auto; margin-bottom: 3vh; }
 
-/* 電腦出拳固定位置 */
 #computer-choice {
     position: absolute;
-    bottom: 10px;   /* 貓咪左下 */
-    left: -30px;    /* 微調位置 */
-    width: 130px;   /* 固定大小 */
+    bottom: 10px;
+    left: -30px;
+    width: 130px;
     height: auto;
     z-index: 2;
-    transition: none; /* 避免平移動畫 */
+    transition: none;
 }
 
-/* 台詞：在貓咪上方，距離約 20px */
 #dialogue-text {
     position: absolute;
-    top: -90px;      /* 台詞在 kitten 上方，距離約 20px（負值代表上方）*/
+    top: -90px;
     left: 50%;
     transform: translateX(-50%);
     color: #4b0082;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
-    max-width: 1000px;   /* 限制寬度，最多兩行 */
+    max-width: 1000px;
     line-height: 1.2;
     z-index: 3;
     word-break: break-word;
@@ -66,20 +64,9 @@ body {
     white-space: normal;
 }
 
-/* 新增：不樂意按鈕文字顯示 */
-#dislike-text {
-    margin-top: 10px;
-    color: #4b0082;
-    font-weight: bold;
-    font-size: 18px;
-    opacity: 0;
-    transition: opacity 0.8s;
-}
-
-/* 其餘樣式保留 */
 #emoji-display { font-size: 45vw; position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; line-height: 1; z-index: 5; }
 
-.choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; flex-direction: column; }
+.choice-buttons { display: flex; gap: 30px; margin-bottom: 3vh; }
 .choice-buttons button { padding: 12px 30px; font-size: 20px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s; }
 .choice-buttons button:hover { transform: scale(1.05); }
 #yes-btn { background-color: #6ca0dc; color: #fff; } 
@@ -93,9 +80,11 @@ body {
 .player-buttons { display: flex; gap: 30px; }
 .player-buttons img { width: 70px; height: 70px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; }
 
-/* 彩屑和素材掉落樣式：加上 z-index 確保在最上層 */
 .falling-item { position: fixed; pointer-events: none; top: -50px; animation-name: fall; animation-timing-function: ease-in; animation-fill-mode: forwards; z-index: 20; }
 @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(360deg); opacity:0; } }
+
+/* 新增不樂意文字顯示樣式 */
+#no-btn-text { color: #4b0082; font-size: 18px; font-weight: bold; margin-top: 10px; opacity: 0; transition: opacity 0.8s; }
 </style>
 </head>
 <body>
@@ -113,8 +102,9 @@ body {
     <div class="choice-buttons fade-in" id="choice-btns" style="visibility:hidden;">
         <button id="yes-btn">很樂意</button>
         <button id="no-btn">不樂意</button>
-        <div id="dislike-text"></div> <!-- 新增顯示文字區域 -->
     </div>
+
+    <div id="no-btn-text"></div>
 
     <div id="status-text" class="fade-in" style="visibility:hidden;">準備好了嗎？</div>
     <div id="hint-text" class="fade-in" style="visibility:hidden;">好了就點擊出拳吧</div>
@@ -143,15 +133,32 @@ const computerChoiceImg = document.getElementById('computer-choice');
 const resultDiv = document.getElementById('result');
 const dialogueText = document.getElementById('dialogue-text');
 const emojiDisplay = document.getElementById('emoji-display');
-const dislikeText = document.getElementById('dislike-text'); // 新增文字區域
+const noBtnText = document.getElementById('no-btn-text');
 
 const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 let firstClick = true;
 
-/* --------------------------- 省略 catDialogues 與 pickDialogue 原有程式碼 --------------------------- */
+const catDialogues = {
+    lose: {1: ["…咪只是大意了！下局才不會輸給你呢！😖","才、才不是讓你啦！再來一次咪一定贏！😡","咪今天狀態不好而已…再玩一局嘛？😫"],
+           2: ["欸？僥倖而已啦！僥倖！🤯","喂喂…你認真了喔？😧","咦？連勝？不行，咪要專心起來了！😤"],
+           4: ["好吧……這次算你贏，給咪等著，咪會復仇的！！😬","可惡…我明明有預判的說……😨","欸？你怎麼這麼厲害… 不行，咪要雪恥！😠","喂！！你是不是偷學咪拳法！☹️"],
+           5: ["怎麼回事…咪的貓咪直覺失靈了嗎？！😨","不行！不行！咪一定要翻盤！😡","對不起，咪錯了…再給咪一次機會喵……🥹","……（沉默）咪累了……😭"]
+          },
+    win: {1: ["咪贏了！要再來一局嗎？😝","欸？你是不是出得有點慢？🫢","你下局能贏咪嘛？😏","嘿嘿，被咪抓到了吧～🤪"],
+          2: ["連贏兩局～咪今天說不定很強？😳","嘿～你該不會被咪看穿了吧？😏","欸？又贏了？你的套路好像有點明顯哦～🫣","欸？兩連敗？！要不要休息一下再來？🤨","又輸？你今天狀態是不是不太行哦😗"],
+          4: ["哎呀～你這樣下去會被咪一直贏喔～🫣","咪是不是該收斂一下實力呢？（才不會）🤭","是不是該承認咪是猜拳天才🤩","咪都不好意思贏太多了🤪"],
+          5: ["五連勝～咪今天是神咪吧！😼","你是不是該換個策略了？看起來沒用喵～😏","咪已經準備好六連勝了，你呢～🤩","這已經不是猜拳，是實力的差距咪～🫣","喵哈哈，又贏了！你還敢挑戰咪嗎？😝"]
+         },
+    draw: {normal: ["喵？平手？！那…再來一次！😛","你是不是偷看咪想出什麼？🫤","哼，這次算你運氣好…再比一次！😖","平局～那就再戰一局！😵‍💫","？！下局咪必贏😠"],
+           streak: ["又平手？！你也太難纏了咪～😵‍💫","欸？怎麼老是平手啊…😳","平手又平手…這樣咪要生氣了！😤","咦？你是不是偷偷猜到咪的套路？😵","咪有點受挫…不行，再來！😖"]
+          }
+};
 
-/* 逐字顯示控制（保持原有） */
+let winStreak = 0;
+let loseStreak = 0;
+let drawStreak = 0;
+
 let typingInterval = null;
 function showDialogue(text){
     if(typingInterval) clearInterval(typingInterval);
@@ -167,48 +174,60 @@ function showDialogue(text){
     }, 40);
 }
 
-/* 初始淡入 */
+function pickDialogue(result){
+    let list;
+    if(result === 'Win'){
+        winStreak++;
+        loseStreak = 0;
+        drawStreak = 0;
+        if(winStreak >= 5) list = catDialogues.lose[5];
+        else if(winStreak === 4) list = catDialogues.lose[4];
+        else if(winStreak >= 2) list = catDialogues.lose[2];
+        else list = catDialogues.lose[1];
+    } else if(result === 'Lose'){
+        loseStreak++;
+        winStreak = 0;
+        drawStreak = 0;
+        if(loseStreak >= 5) list = catDialogues.win[5];
+        else if(loseStreak === 4) list = catDialogues.win[4];
+        else if(loseStreak >= 2) list = catDialogues.win[2];
+        else list = catDialogues.win[1];
+    } else {
+        drawStreak++;
+        winStreak = 0;
+        loseStreak = 0;
+        if(drawStreak >= 2) list = catDialogues.draw.streak;
+        else list = catDialogues.draw.normal;
+    }
+    return list[Math.floor(Math.random() * list.length)];
+}
+
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
 
-/* 新增：不樂意按鈕文字顯示邏輯 */
 noBtn.addEventListener('click',()=>{
     noClickCount++;
-    emojiDisplay.textContent = noClickCount===1 ? '🥺' : '🥹';
+    if(noClickCount === 1) emojiDisplay.textContent = '🥺';
+    else if(noClickCount === 2) emojiDisplay.textContent = '🥹';
+    else if(noClickCount === 3) noBtnText.textContent = "你忍心嗎...?"; 
+    else if(noClickCount === 4) noBtnText.textContent = "賞個臉和咪來一局吧...🥹"; 
+    else if(noClickCount === 5) noBtnText.textContent = "......你真的這麼不想陪咪嗎？🥺";
+    else if(noClickCount === 6) noBtnText.textContent = "好吧…那想玩的時候再來找咪吧...🥹";
+    else if(noClickCount === 7) noBtnText.textContent = "人，咪在這等你...🥲";
 
-    dislikeText.style.opacity = 0; // 每次淡入前先隱藏文字
-    if(noClickCount===3){
-        dislikeText.textContent = '你忍心嗎...?';
-        setTimeout(()=>{dislikeText.style.opacity=1;}, 50);
-    } else if(noClickCount===4){
-        dislikeText.textContent = '賞個臉和咪來一局吧...🥹';
-        setTimeout(()=>{dislikeText.style.opacity=1;}, 50);
-    } else if(noClickCount===5){
-        dislikeText.textContent = '......你真的這麼不想陪咪嗎？🥺';
-        setTimeout(()=>{dislikeText.style.opacity=1;}, 50);
-    } else if(noClickCount===6){
-        dislikeText.textContent = '好吧…那想玩的時候再來找咪吧...🥹';
-        setTimeout(()=>{dislikeText.style.opacity=1;}, 50);
-    } else if(noClickCount===7){
-        dislikeText.textContent = '人，咪在這等你...🥲';
-        setTimeout(()=>{dislikeText.style.opacity=1;}, 50);
-    } else if(noClickCount>=8){
-        dislikeText.textContent = '';
+    if(noClickCount >= 3){
+        noBtnText.style.opacity = 1;
     }
 });
 
-/* 點擊很樂意按鈕，清除不樂意文字，進入遊戲畫面 */
 yesBtn.addEventListener('click',()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
-    dislikeText.textContent = '';
-    dislikeText.style.opacity = 0;
-
+    noBtnText.style.display='none'; // 直接消失，不淡出
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
-
     setTimeout(()=>{
         playerBtnContainer.style.visibility='visible';
         playerButtons.forEach((btn, i)=>{
@@ -217,7 +236,6 @@ yesBtn.addEventListener('click',()=>{
     },1800);
 });
 
-/* 玩家出拳主流程（保持原有邏輯） */
 playerButtons.forEach(btn=>{
     btn.addEventListener('click',()=>{
         const playerChoice = btn.getAttribute('data-choice');
@@ -249,6 +267,7 @@ playerButtons.forEach(btn=>{
         else if(result==='Lose') resultDiv.innerHTML = `<img src="Defeat.png" style="max-width:150px;">`;
         else if(result==='Draw') resultDiv.innerHTML = `<img src="Draw.png" style="max-width:150px;">`;
 
+        // 顯示貓咪台詞
         const line = pickDialogue(result);
         showDialogue(line);
 
@@ -286,6 +305,5 @@ playerButtons.forEach(btn=>{
     });
 });
 </script>
-
 </body>
 </html>
