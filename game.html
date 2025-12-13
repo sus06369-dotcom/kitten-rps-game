@@ -49,14 +49,14 @@ body {
 
 #dialogue-text {
     position: absolute;
-    top: -90px;      
+    top: -90px;
     left: 50%;
     transform: translateX(-50%);
     color: #4b0082;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
-    max-width: 1000px;  
+    max-width: 1000px;
     line-height: 1.2;
     z-index: 3;
     word-break: break-word;
@@ -146,7 +146,10 @@ const computerOptions = ['scissors2.png','rock2.png','paper2.png'];
 let noClickCount = 0;
 let firstClick = true;
 
-const catDialogues = { /* 原 catDialogues 物件 */ };
+/* 你的完整台詞池 */
+const catDialogues = {
+    /* 這裡放你原本的 catDialogues 物件 */
+};
 
 let winStreak = 0;   
 let loseStreak = 0;  
@@ -195,34 +198,41 @@ function pickDialogue(result){
     return list[Math.floor(Math.random() * list.length)];
 }
 
+/* 初始淡入 */
 setTimeout(()=>{introText.classList.add('visible');}, 200);
 setTimeout(()=>{kittenImg.classList.add('visible');}, 1000);
 setTimeout(()=>{choiceBtns.style.visibility='visible'; choiceBtns.classList.add('visible');}, 1800);
 
-noBtn.addEventListener('click', ()=>{
+/* 不樂意按鈕 */
+noBtn.addEventListener('click',()=>{
     noClickCount++;
-
-    if(noClickCount === 1) emojiDisplay.textContent = '🥺';
-    else if(noClickCount === 2) emojiDisplay.textContent = '🥹';
-    else {
-        if(noClickCount === 3) noText.textContent = '你忍心嗎...?';
-        else if(noClickCount === 4) noText.textContent = '賞個臉跟小貓來一局吧...🥹';
-        else if(noClickCount === 5) noText.textContent = '……你真的這麼不想陪咪嗎？🥺';
-        else if(noClickCount === 6) noText.textContent = '好吧…那想玩的時候再來找咪吧...🥹';
-        else if(noClickCount >= 7) noText.textContent = '人，想玩時咪在這等🥲';
-
-        noText.style.opacity = '0';
+    if(noClickCount === 1) emojiDisplay.textContent='🥺';
+    else if(noClickCount === 2) emojiDisplay.textContent='🥹';
+    
+    if(noClickCount === 3) noText.textContent='你忍心嗎...?'; 
+    else if(noClickCount === 4) noText.textContent='賞個臉跟小貓來一局吧...🥹'; 
+    else if(noClickCount === 5) noText.textContent='……你真的這麼不想陪咪嗎？🥺'; 
+    else if(noClickCount === 6) noText.textContent='好吧…那想玩的時候再來找咪吧...🥹';
+    else if(noClickCount >= 7) noText.textContent='人，想玩時咪在這等🥲';
+    
+    if(noClickCount >= 3){
+        noText.style.opacity='0';
         void noText.offsetWidth;
-        noText.style.opacity = '1';
+        noText.style.opacity='1';
     }
 });
 
+/* 很樂意按鈕 */
 yesBtn.addEventListener('click', ()=>{
     introText.style.display='none';
     choiceBtns.style.display='none';
     emojiDisplay.textContent='';
-    noText.style.opacity='0'; // 立即隱藏文字，不淡出
-
+    
+    noText.style.opacity='0';
+    noText.textContent = '';        // 清空不樂意文字
+    dialogueText.style.opacity = '1';
+    dialogueText.textContent = '';  // 清空台詞
+    
     setTimeout(()=>{statusText.style.visibility='visible'; statusText.classList.add('visible');},200);
     setTimeout(()=>{hintText.style.visibility='visible'; hintText.classList.add('visible');},1000);
     setTimeout(()=>{
@@ -233,8 +243,9 @@ yesBtn.addEventListener('click', ()=>{
     },1800);
 });
 
+/* 玩家出拳主流程 */
 playerButtons.forEach(btn=>{
-    btn.addEventListener('click',()=>{
+    btn.addEventListener('click', ()=>{
         const playerChoice = btn.getAttribute('data-choice');
         const computerChoiceFile = computerOptions[Math.floor(Math.random()*3)];
         computerChoiceImg.src = computerChoiceFile;
