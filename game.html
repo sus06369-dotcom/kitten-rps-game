@@ -222,9 +222,10 @@ noBtn.addEventListener('click',()=>{
     
     // 第3~6次點擊文字淡入
     if(noClickCount === 3) noText.textContent='你忍心嗎...?'; 
-    else if(noClickCount === 4) noText.textContent='賞個臉跟小貓來一局吧...🥹'; 
+    else if(noClickCount === 4) noText.textContent='賞個臉和咪來一局吧...🥹'; 
     else if(noClickCount === 5) noText.textContent='……你真的這麼不想陪咪嗎？🥺'; 
-    else if(noClickCount >= 6) noText.textContent='好吧……那想玩的時候再來找咪吧...🥹';
+    else if(noClickCount === 6) noText.textContent='好吧…那人想玩的時候再來找咪吧...🥹';
+else if(noClickCount === 7) noText.textContent='人，咪在這等你...🥲';
     
     // 文字淡入
     if(noClickCount >= 3){
